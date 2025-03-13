@@ -3,60 +3,60 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class AuthController extends Controller
 {
+    // ✅ Admin Login
     public function login(Request $request)
     {
-        // ✅ Log the request data (FOR DEBUGGING)
-        Log::info('Login attempt', $request->all());
-
-        // ✅ Find user by email
+        $request->validate([
+            "email" => "required|email",
+            "password" => "required",
+        ]);
+    
+        // ✅ Fetch the user manually
         $user = User::where('email', $request->email)->first();
-
-        // ❌ No token, just check credentials
+    
+        // ✅ Check if user exists and verify password using Hash::check()
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid username or password'], 401);
+            return response()->json(["error" => "Invalid credentials"], 401);
         }
+    
+        // ✅ Ensure only the predefined admin can log in
+        if ($user->email !== "anyayahanjosedexter@gmail.com") {
+            return response()->json(["error" => "Access denied."], 403);
+        }
+    
+        Auth::login($user);
+    
+        // ❌ REMOVE session()->regenerate() - Not needed in API authentication
+        // $request->session()->regenerate(); <-- REMOVE THIS
+    
+        return response()->json(["user" => $user], 200);
+    }
+    
 
-        // ✅ Redirect based on role
-        return response()->json([
-            'message' => 'Login successful',
-            'redirect' => $user->role === 'admin' 
-                ? '/admin/overview/listed-properties' 
-                : '/dashboard',
-        ], 200);
+
+    // ✅ Get Authenticated User
+    public function user(Request $request)
+{
+    $user = Auth::user(); // ✅ Ensure this is not null
+
+    if (!$user) {
+        return response()->json(["error" => "Unauthorized"], 401);
     }
 
-    public function register(Request $request)
+    return response()->json($user);
+}
+
+    // ✅ Logout
+    public function logout(Request $request)
     {
-        // ✅ Log the request data (FOR DEBUGGING)
-        Log::info('Registration attempt', $request->all());
-
-        // ✅ Validate input
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:buyer,seller',
-            'business_name' => 'nullable|string|max:255' // Only for sellers
-        ]);
-
-        // ✅ Create user (WITH PASSWORD HASHING)
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // Secure hashing
-            'role' => $request->role,
-            'business_name' => $request->role === 'seller' ? $request->business_name : null
-        ]);
-
-        return response()->json([
-            'message' => 'Registration successful',
-            'redirect' => '/auth/login'
-        ], 201);
+        Auth::logout();
+        $request->session()->invalidate();
+        return response()->json(["message" => "Logged out"], 200);
     }
 }
