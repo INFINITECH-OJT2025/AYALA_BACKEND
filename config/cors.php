@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'], // ✅ Ensure Sanctum CSRF is included
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage'], // ✅ Ensure Sanctum CSRF is included
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'], // ✅ Allow all origins (only in development)
     'allowed_origins_patterns' => [],
