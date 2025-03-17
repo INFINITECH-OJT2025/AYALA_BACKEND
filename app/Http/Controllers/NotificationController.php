@@ -134,8 +134,4 @@ class NotificationController extends Controller
                 ->get()
         );
     }
-    
-    
-    
-    
 }
