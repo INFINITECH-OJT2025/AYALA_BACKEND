@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutUsController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -11,6 +12,10 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\NewsPostController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
+
+Route::get('/about-us', [AboutUsController::class, 'index']); // ✅ Fetch About Us
+Route::post('/about-us', [AboutUsController::class, 'store']); // ✅ Create or Update About Us
+Route::delete('/about-us', [AboutUsController::class, 'destroy']); // ✅ Delete About Us
 
 Route::get('/job-applications/stats', [JobApplicationController::class, 'getStats']);
 Route::get('/properties/stats', [PropertyController::class, 'getStats']);
