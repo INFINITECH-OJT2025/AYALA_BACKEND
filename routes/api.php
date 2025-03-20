@@ -12,6 +12,14 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\NewsPostController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SubscriberController;
+use Illuminate\Http\Request;
+
+Route::options('/{any}', function (Request $request) {
+    return response()->json(['status' => 'OK'], 200);
+})->where('any', '.*');
+
+Route::post('/subscribe', [SubscriberController::class, 'subscribe']);
 
 Route::get('/about-us', [AboutUsController::class, 'index']); // ✅ Fetch About Us
 Route::post('/about-us', [AboutUsController::class, 'store']); // ✅ Create or Update About Us
@@ -48,13 +56,13 @@ Route::delete('/news/{id}', [NewsPostController::class, 'destroy']);
 Route::get('/appointments', [AppointmentController::class, 'index']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
 Route::post('/appointments/{id}/reply', [AppointmentController::class, 'reply']);
-Route::put('/appointments/{id}/archive', [AppointmentController::class, 'archive']);
-Route::put('/appointments/{id}/unarchive', [AppointmentController::class, 'unarchive']);
+Route::post('/appointments/{id}/archive', [AppointmentController::class, 'archive']);
+Route::post('/appointments/{id}/unarchive', [AppointmentController::class, 'unarchive']);
 Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 
 Route::post('/property-inquiries/{id}/reply', [PropertyInquiryController::class, 'reply']); // Reply via email
-Route::put('/property-inquiries/{id}/archive', [PropertyInquiryController::class, 'archive']); // Archive inquiry
-Route::put('/property-inquiries/{id}/unarchive', [PropertyInquiryController::class, 'unarchive']); // Unarchive inquiry
+Route::post('/property-inquiries/{id}/archive', [PropertyInquiryController::class, 'archive']); // Archive inquiry
+Route::post('/property-inquiries/{id}/unarchive', [PropertyInquiryController::class, 'unarchive']); // Unarchive inquiry
 Route::delete('/property-inquiries/{id}', [PropertyInquiryController::class, 'destroy']); // Delete inquiry
 Route::post('/property-inquiries', [PropertyInquiryController::class, 'store']);
 Route::get('/property-inquiries', [PropertyInquiryController::class, 'index']);
@@ -82,6 +90,11 @@ Route::get('/jobs/all', [JobController::class, 'fetchJobs']); // ✅ New API end
 
 // ✅ Admin Login
 Route::middleware("guest")->post("/login", [AuthController::class, "login"]);
+
+// ✅ Forgot Password (Public Route)
+Route::post("/forgot-password", [AuthController::class, "forgotPassword"]);
+
+Route::post("/reset-password", [AuthController::class, "resetPassword"]);
 
 // ✅ Apply session timeout middleware to protected routes
 Route::middleware(['auth:sanctum', 'session.timeout'])->group(function () {

@@ -22,6 +22,7 @@ class Property extends Model
         'floor_number',
         'unit_type',
         'unit_status',
+        'other_details', // ✅ New field to store multiple inputs
         'description',
         'property_image', // ✅ Supports multiple images
         'pool_area',
@@ -41,6 +42,7 @@ class Property extends Model
     protected $casts = [
         'property_image' => 'array', // ✅ Ensures images are stored as an array
         'type_of_listing' => 'array',
+        'other_details' => 'array',
         'pool_area' => 'boolean',
         'guest_suite' => 'boolean',
         'underground_parking' => 'boolean',

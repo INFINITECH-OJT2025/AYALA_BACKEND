@@ -3,10 +3,18 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/reset-password/{token}', function ($token) {
+    $email = request()->query('email');
+    
+    // ✅ Redirect to the Next.js reset password page
+    return redirect("http://localhost:3000/auth/forgot-password?token={$token}&email={$email}");
+})->name('password.reset');
 
 // ✅ Serve images from `public/storage/properties/` with CORS headers
 Route::get('/storage/properties/{filename}', function (Request $request, $filename) {

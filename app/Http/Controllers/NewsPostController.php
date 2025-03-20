@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\NewsPost;
+use App\Models\Subscriber;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FeaturedNewsMail;
 use Illuminate\Support\Facades\Validator;
 
 class NewsPostController extends Controller
@@ -24,7 +27,7 @@ class NewsPostController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
             'category' => 'required|string',
             'is_featured' => 'boolean',
             'status' => 'required|in:draft,published',
@@ -41,11 +44,16 @@ class NewsPostController extends Controller
         if ($request->hasFile('image')) {
             $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
             $request->file('image')->move(public_path('storage/news_images'), $filename);
-            $data['image'] = asset('storage/news_images/' . $filename); // ✅ Ensure correct public path
+            $data['image'] = asset('storage/news_images/' . $filename);
         }
-        
 
         $news = NewsPost::create($data);
+
+        // ✅ Send email if it's featured & published
+        if ($news->is_featured && $news->status === "published") {
+            $this->sendFeaturedNewsEmail($news);
+        }
+
         return response()->json($news, 201);
     }
 
@@ -74,11 +82,17 @@ class NewsPostController extends Controller
         if ($request->hasFile('image')) {
             $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
             $request->file('image')->move(public_path('storage/news_images'), $filename);
-            $data['image'] = asset('storage/news_images/' . $filename); // ✅ Ensure correct public path
+            $data['image'] = asset('storage/news_images/' . $filename);
         }
-        
 
+        $wasPreviouslyPublished = $news->status === "published";
         $news->update($data);
+
+        // ✅ If updated news is now featured & published, send email
+        if ($news->is_featured && $news->status === "published" && !$wasPreviouslyPublished) {
+            $this->sendFeaturedNewsEmail($news);
+        }
+
         return response()->json($news);
     }
 
@@ -90,5 +104,13 @@ class NewsPostController extends Controller
 
         $news->delete();
         return response()->json(['message' => 'News post deleted successfully']);
+    }
+
+    // ✅ Send email to subscribers when featured news is published
+    private function sendFeaturedNewsEmail($news) {
+        $subscribers = Subscriber::pluck('email');
+        foreach ($subscribers as $email) {
+            Mail::to($email)->send(new FeaturedNewsMail($news));
+        }
     }
 }

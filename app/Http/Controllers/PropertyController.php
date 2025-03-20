@@ -231,12 +231,22 @@ class PropertyController extends Controller
             // Send email notifications
             if ($status === 'approved') {
                 Mail::to($property->email)->send(new PropertyApprovedMail($property));
+                $this->sendNewPropertyEmail($property);
             } elseif ($status === 'rejected' && $reason) {
                 Mail::to($property->email)->send(new PropertyRejectedMail($property, $reason));
             }
         
             return response()->json(['message' => "Property $status successfully."]);
         }
+
+        // ✅ Notify subscribers about new approved property
+            private function sendNewPropertyEmail($property)
+            {
+                $subscribers = \App\Models\Subscriber::pluck('email');
+                foreach ($subscribers as $email) {
+                    Mail::to($email)->send(new \App\Mail\NewPropertyMail($property));
+                }
+            }
 
         
 

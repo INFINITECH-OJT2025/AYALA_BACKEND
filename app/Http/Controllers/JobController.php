@@ -6,6 +6,9 @@ use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\Subscriber;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\JobPostedMail;
 
 class JobController extends Controller
 {
@@ -23,7 +26,7 @@ class JobController extends Controller
             'deadline' => 'nullable|date',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg',
-            'slots' => 'required|integer|min:1' // ✅ Added slots validation
+            'slots' => 'required|integer|min:1'
         ]);
 
         if ($request->hasFile('image')) {
@@ -35,7 +38,17 @@ class JobController extends Controller
 
         $job = Job::create($validated);
 
+        // ✅ Send email to all subscribers
+        $this->sendJobPostedEmail($job);
+
         return response()->json($job, 201);
+    }
+
+    private function sendJobPostedEmail($job) {
+        $subscribers = Subscriber::pluck('email'); // Fetch all subscriber emails
+        foreach ($subscribers as $email) {
+            Mail::to($email)->send(new JobPostedMail($job));
+        }
     }
 
     public function featuredJobs(Request $request)
