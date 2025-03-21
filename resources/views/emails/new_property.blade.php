@@ -1,55 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Property Available</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
-            text-align: left;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h2 {
             color: #222;
-            margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
         .meta {
             font-size: 14px;
-            color: #555;
+            color: #666;
             margin-bottom: 15px;
         }
         p {
             color: #444;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
         .btn {
-            display: inline-block;
+            display: block;
             background-color: #007bff;
             color: white;
-            padding: 12px 20px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            margin-top: 20px;
+            text-align: center;
+            margin-top: 10px;
+            transition: background 0.3s ease-in-out;
         }
         .btn:hover {
             background-color: #0056b3;
         }
         .footer {
-            margin-top: 20px;
             font-size: 14px;
-            color: #888;
+            color: #777;
             text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -57,7 +67,7 @@
     <div class="container">
         <h2>{{ $property['property_name'] }}</h2>
         <p class="meta">
-            <strong>Location:</strong> {{ $property['location'] }} |
+            <strong>Location:</strong> {{ $property['location'] }}<br>
             <strong>Price:</strong> ₱{{ number_format($property['price'], 2) }}
         </p>
         <p>{{ $property['description'] }}</p>

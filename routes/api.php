@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AboutUsController;
+use App\Http\Controllers\ApplicantAppointmentController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -14,6 +15,11 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriberController;
 use Illuminate\Http\Request;
+
+Route::post('/applicants/{id}/schedule', [ApplicantAppointmentController::class, 'schedule']);
+Route::get('/appointments', [ApplicantAppointmentController::class, 'index']);
+Route::get('/appointments/{id}', [ApplicantAppointmentController::class, 'show']);
+Route::delete('/appointments/{id}', [ApplicantAppointmentController::class, 'destroy']);
 
 Route::options('/{any}', function (Request $request) {
     return response()->json(['status' => 'OK'], 200);

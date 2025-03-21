@@ -10,12 +10,14 @@ class JobApplication extends Model
     use HasFactory;
 
     protected $fillable = [
+        'job_title', // ✅ Ensure job title is allowed in mass assignment
         'first_name',
         'last_name',
         'email',
         'phone',
         'address',
         'resume_path',
-        'status', // ✅ Add status field here
+        'status', // ✅ Ensure status field is included
+        'schedule_date', // ✅ Add this field
     ];
 }

@@ -1,21 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Job Opportunity at AyalaLand</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             background: white;
             padding: 25px;
             border-radius: 8px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: left;
         }
         .header {
@@ -23,52 +29,49 @@
             margin-bottom: 20px;
         }
         .logo {
-            max-width: 150px;
+            max-width: 130px;
             margin-bottom: 15px;
         }
         h2 {
             color: #004d40;
+            font-size: 22px;
+            font-weight: bold;
             margin-bottom: 10px;
             text-align: center;
         }
-        .meta {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 15px;
-        }
-        p {
-            color: #333;
+        .meta, p {
+            color: #444;
             font-size: 16px;
             line-height: 1.6;
-            margin: 5px 0;
+            margin-bottom: 10px;
         }
         .btn {
             display: block;
-            width: 100%;
-            text-align: center;
             background-color: #00796b;
             color: white;
             padding: 12px;
-            border-radius: 5px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            margin-top: 20px;
+            text-align: center;
+            transition: background 0.3s ease-in-out;
+            margin-top: 15px;
         }
         .btn:hover {
             background-color: #005a4a;
         }
         .footer {
-            margin-top: 20px;
             font-size: 14px;
             color: #777;
             text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://www.ayalaland.com.ph/wp-content/uploads/2020/04/Ayala-Land-Logo-1.png" alt="AyalaLand Logo" class="logo">
+            <!-- <img src="https://www.ayalaland.com.ph/wp-content/uploads/2020/04/Ayala-Land-Logo-1.png" alt="AyalaLand Logo" class="logo"> -->
             <h2>Exciting Career Opportunity at AyalaLand</h2>
         </div>
 

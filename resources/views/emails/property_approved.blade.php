@@ -1,60 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Property Approved</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            padding: 20px;
+            background: white;
+            padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .logo {
-            max-width: 150px;
-            margin-bottom: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
         h2 {
             color: #003865;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
         }
         p {
+            color: #444;
             font-size: 16px;
-            color: #333;
-            line-height: 1.5;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
         .btn {
-            display: inline-block;
+            display: block;
             background-color: #007bff;
-            color: #ffffff;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
             text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 5px;
             font-weight: bold;
-            margin-top: 20px;
+            text-align: center;
+            transition: background 0.3s ease-in-out;
+            margin-top: 10px;
         }
         .btn:hover {
             background-color: #0056b3;
         }
         .footer {
-            margin-top: 30px;
             font-size: 14px;
-            color: #666;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-
         <!-- ✅ Email Content -->
         <h2>Congratulations, Your Property is Now Live! 🎉</h2>
         <p>Hello <strong>{{ $property->first_name }}</strong>,</p>
