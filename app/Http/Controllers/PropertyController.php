@@ -268,43 +268,45 @@ class PropertyController extends Controller
         // }
 
         public function getStats()
-    {
-        // Get total properties
-        $total = Property::count();
+{
+    // Get total properties
+    $total = Property::count();
 
-        // Get properties for sale
-        $forSale = Property::whereJsonContains('type_of_listing', 'For Sale')->count();
+    // Get properties for sale
+    $forSale = Property::whereJsonContains('type_of_listing', 'For Sale')->count();
 
-        // Get properties for rent
-        $forRent = Property::whereJsonContains('type_of_listing', 'For Rent')->count();
+    // Get properties for rent
+    $forRent = Property::whereJsonContains('type_of_listing', 'For Rent')->count();
 
-        // Get the most viewed property based on unique views
-        $mostViewedProperty = Property::withCount('views')
-            ->orderByDesc('views_count')
-            ->first();
+    // Get total unique views across all properties
+    $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
 
-        // Get total unique views across all properties
-        $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
+    // Get total views from all IP addresses (including duplicates)
+    $totalViews = \App\Models\PropertyView::count();
 
-        // Get total views from all IP addresses (including duplicates)
-        $totalViews = \App\Models\PropertyView::count();
+    // Get the most viewed property with tie-breaking logic (most recent wins if tied)
+    $mostViewedProperty = Property::withCount('views')
+        ->orderByDesc('views_count') // Sort by highest views
+        ->orderByDesc('created_at')  // If tied, pick the most recent
+        ->first();
 
-        return response()->json([
-            'total' => $total,
-            'forSale' => $forSale,
-            'forRent' => $forRent,
-            'uniqueViews' => $uniqueViews, // ✅ Count of distinct IPs
-            'totalViews' => $totalViews, // ✅ Total count of all IPs (including duplicates)
-            'mostViewed' => $mostViewedProperty ? [
-                'name' => $mostViewedProperty->property_name,
-                'location' => $mostViewedProperty->location ?? 'Unknown',
-                'price' => $mostViewedProperty->price ?? 0,
-                'image' => is_array($mostViewedProperty->property_image) 
-                    ? $mostViewedProperty->property_image[0] // Get the first image if stored as an array
-                    : $mostViewedProperty->property_image // Otherwise, return as is
-            ] : null,
-        ]);
-    }
+    return response()->json([
+        'total' => $total,
+        'forSale' => $forSale,
+        'forRent' => $forRent,
+        'uniqueViews' => $uniqueViews,
+        'totalViews' => $totalViews,
+        'mostViewed' => $mostViewedProperty ? [
+            'name' => $mostViewedProperty->property_name,
+            'location' => $mostViewedProperty->location ?? 'Unknown',
+            'price' => $mostViewedProperty->price ?? 0,
+            'image' => is_array($mostViewedProperty->property_image) 
+                ? $mostViewedProperty->property_image[0] // Get the first image if stored as an array
+                : $mostViewedProperty->property_image // Otherwise, return as is
+        ] : null,
+    ]);
+}
+
 
         
         

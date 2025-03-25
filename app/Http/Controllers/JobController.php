@@ -76,9 +76,21 @@ class JobController extends Controller
 
     public function featuredJobs(Request $request)
     {
-        $limit = $request->query('limit', 3); 
-        return response()->json(Job::latest()->take($limit)->get());
+        $limit = $request->query('limit', 3);
+        $today = now()->startOfDay(); // ✅ Get today's date without time
+    
+        // ✅ Fetch latest jobs where deadline is either NULL or in the future
+        $jobs = Job::where(function ($query) use ($today) {
+                $query->whereNull('deadline')
+                      ->orWhere('deadline', '>=', $today);
+            })
+            ->latest()
+            ->take($limit)
+            ->get();
+    
+        return response()->json($jobs);
     }
+    
     public function fetchJobs() {
         return response()->json(Job::latest()->get()); // ✅ Fetch all jobs without limit
     }
