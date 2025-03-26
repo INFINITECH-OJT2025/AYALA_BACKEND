@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicantNotification;
+use App\Models\ApplicantAppointment;
 use App\Models\Notification;
 
 class JobApplicationController extends Controller
@@ -91,23 +92,53 @@ class JobApplicationController extends Controller
      * Approve a job application and send an email notification.
      */
     public function schedule(Request $request, $id)
-    {
-        $applicant = JobApplication::findOrFail($id);
-    
-        $validated = $request->validate([
-            'schedule_date' => 'required|date',
-            'message' => 'nullable|string',
-        ]);
-    
-        $applicant->update([
-            'status' => 'scheduled',
-            'schedule_date' => $validated['schedule_date'],
-        ]);
-    
-        Mail::to($applicant->email)->send(new ApplicantNotification("Interview Scheduled", "Your interview is scheduled on {$validated['schedule_date']}. {$validated['message']}"));
-    
-        return response()->json(['message' => 'Interview scheduled successfully']);
+{
+    $validated = $request->validate([
+        'schedule_datetime' => 'required|date_format:Y-m-d H:i:s', // ✅ Ensure valid date format
+        'message' => 'nullable|string',
+    ]);
+
+    $applicant = JobApplication::findOrFail($id);
+
+    // ✅ Create or update appointment (No restriction now)
+    $appointment = ApplicantAppointment::updateOrCreate(
+        ['applicant_id' => $applicant->id],
+        [
+            'schedule_datetime' => $validated['schedule_datetime'],
+            'message' => $validated['message'],
+        ]
+    );
+
+    // ✅ Update applicant status to "replied"
+    $applicant->update(['status' => 'replied']);
+
+    // ✅ Define frontend reschedule page URL
+    $frontendRescheduleUrl = env('FRONTEND_URL', 'http://localhost:3000') . "/reschedule/{$applicant->id}?email=" . urlencode($applicant->email);
+
+    // ✅ Define the message body for email
+    $messageBody = "Your interview has been scheduled on {$validated['schedule_datetime']}.\n\n";
+    if (!empty($validated['message'])) {
+        $messageBody .= "Message from the admin: {$validated['message']}\n\n";
     }
+    $messageBody .= "If you need to reschedule, click the button below:\n\n";
+
+    // ✅ Send email notification with the frontend reschedule URL
+    Mail::to($applicant->email)->send(new ApplicantNotification(
+        "Interview Scheduled",
+        $messageBody,
+        $applicant->id,
+        $frontendRescheduleUrl,
+        $applicant->email,
+        "scheduled",
+        null
+    ));
+
+    return response()->json(['message' => 'Appointment scheduled successfully', 'appointment' => $appointment], 201);
+}
+
+    
+
+    
     
 
     /**
@@ -116,14 +147,30 @@ class JobApplicationController extends Controller
     public function reject(Request $request, $id)
     {
         $applicant = JobApplication::findOrFail($id);
+    
+        // ✅ Define message content
         $messageBody = $request->input('message', 'We regret to inform you that your application has been rejected.');
-
+    
+        // ✅ Update applicant status
         $applicant->update(['status' => 'rejected']);
-
-        Mail::to($applicant->email)->send(new ApplicantNotification("Application Rejected", $messageBody));
-
+    
+        // ✅ Define frontend jobs page URL
+        $frontendJobsUrl = env('FRONTEND_URL', 'http://localhost:3000') . "/jobs";
+    
+        // ✅ Send email with correct routing
+        Mail::to($applicant->email)->send(new ApplicantNotification(
+            "Application Rejected",
+            $messageBody,
+            $applicant->id,
+            $frontendJobsUrl,
+            $applicant->email,
+            "rejected", // ✅ Add status
+            null // ✅ No new schedule for rejected applications
+        ));
+        
         return response()->json(['message' => 'Applicant rejected and email sent successfully']);
     }
+    
 
     /**
      * Delete a job application and its associated resume file.

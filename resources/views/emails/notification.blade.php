@@ -43,12 +43,12 @@
             font-weight: bold;
             margin-top: 20px;
         }
-        .btn-approve {
-            background-color: #28a745;
+        .btn-reschedule {
+            background-color: #007bff;
             color: #ffffff;
         }
-        .btn-approve:hover {
-            background-color: #218838;
+        .btn-reschedule:hover {
+            background-color: #0056b3;
         }
         .btn-reject {
             background-color: #d9534f;
@@ -71,13 +71,32 @@
 
         <!-- ✅ Admin’s custom message -->
         <div class="message-box">
-            <p>{{ $messageContent }}</p>
+            <p>{!! nl2br(e($messageContent)) !!}</p>
         </div>
 
-        @if(strpos($subjectText, 'Approved') !== false)
-            <a href="{{ url('/dashboard') }}" class="btn btn-approve">View Your Application</a>
+        <!-- ✅ Show message based on approval or rejection -->
+        @if($status === 'approved')
+            <p>Your reschedule request has been <strong>approved</strong>. Please be available on your new schedule:</p>
+            <div class="message-box">
+                <p><strong>New Schedule:</strong> {{ \Carbon\Carbon::parse($newSchedule)->format('F d, Y h:i A') }}</p>
+            </div>
+        @elseif($status === 'rejected')
+            <p>Sorry.</p>
+        @endif
+
+        <!-- ✅ If admin scheduled the interview, show "Reschedule Interview" -->
+        @if(strpos($subjectText, 'Interview Scheduled') !== false)
+            <a href="{{ rtrim($frontendUrl, '/') }}" class="btn btn-reschedule">Reschedule Interview</a>
         @else
-            <a href="{{ url('/jobs') }}" class="btn btn-reject">View Other Job Listings</a>
+            <!-- ✅ If reschedule is approved or rejected, show "View Information" -->
+            <a href="{{ rtrim($frontendUrl, '/') }}" class="btn btn-reschedule">
+                View Information
+            </a>
+        @endif
+
+        <!-- ✅ If rejected, show "View Other Job Listings" button -->
+        @if($status === 'rejected')
+            <a href="{{ rtrim($frontendUrl, '/') }}/jobs" class="btn btn-reject">View Other Job Listings</a>
         @endif
 
         <p>If you have any questions, feel free to contact our team.</p>

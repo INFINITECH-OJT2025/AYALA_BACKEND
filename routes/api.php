@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutUsController;
 use App\Http\Controllers\ApplicantAppointmentController;
+use App\Http\Controllers\ApplicantRescheduleController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -15,6 +16,10 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriberController;
 use Illuminate\Http\Request;
+
+Route::get('/reschedule/{id}', [ApplicantRescheduleController::class, 'show']);
+Route::post('/reschedule', [ApplicantRescheduleController::class, 'store']);
+Route::put('/reschedule/{id}', [ApplicantRescheduleController::class, 'updateStatus']);
 
 Route::post('/applicants/{id}/schedule', [ApplicantAppointmentController::class, 'schedule']);
 Route::get('/appointments', [ApplicantAppointmentController::class, 'index']);
