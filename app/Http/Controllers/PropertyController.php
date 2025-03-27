@@ -286,44 +286,43 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
         // }
 
         public function getStats()
-{
-    // Get total properties
-    $total = Property::count();
-
-    // Get properties for sale
-    $forSale = Property::whereJsonContains('type_of_listing', 'For Sale')->count();
-
-    // Get properties for rent
-    $forRent = Property::whereJsonContains('type_of_listing', 'For Rent')->count();
-
-    // Get total unique views across all properties
-    $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
-
-    // Get total views from all IP addresses (including duplicates)
-    $totalViews = \App\Models\PropertyView::count();
-
-    // Get the most viewed property with tie-breaking logic (most recent wins if tied)
-    $mostViewedProperty = Property::withCount('views')
-        ->orderByDesc('views_count') // Sort by highest views
-        ->orderByDesc('created_at')  // If tied, pick the most recent
-        ->first();
-
-    return response()->json([
-        'total' => $total,
-        'forSale' => $forSale,
-        'forRent' => $forRent,
-        'uniqueViews' => $uniqueViews,
-        'totalViews' => $totalViews,
-        'mostViewed' => $mostViewedProperty ? [
-            'name' => $mostViewedProperty->property_name,
-            'location' => $mostViewedProperty->location ?? 'Unknown',
-            'price' => $mostViewedProperty->price ?? 0,
-            'image' => is_array($mostViewedProperty->property_image) 
-                ? $mostViewedProperty->property_image[0] // Get the first image if stored as an array
-                : $mostViewedProperty->property_image // Otherwise, return as is
-        ] : null,
-    ]);
-}
+        {
+            // Get total properties
+            $total = Property::count();
+        
+            // Use LIKE instead of JSON_CONTAINS because type_of_listing is now a VARCHAR
+            $forSale = Property::where('type_of_listing', 'LIKE', '%For Sale%')->count();
+            $forRent = Property::where('type_of_listing', 'LIKE', '%For Rent%')->count();
+        
+            // Get total unique views across all properties
+            $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
+        
+            // Get total views from all IP addresses (including duplicates)
+            $totalViews = \App\Models\PropertyView::count();
+        
+            // Get the most viewed property with tie-breaking logic (most recent wins if tied)
+            $mostViewedProperty = Property::withCount('views')
+                ->orderByDesc('views_count') // Sort by highest views
+                ->orderByDesc('created_at')  // If tied, pick the most recent
+                ->first();
+        
+            return response()->json([
+                'total' => $total,
+                'forSale' => $forSale,
+                'forRent' => $forRent,
+                'uniqueViews' => $uniqueViews,
+                'totalViews' => $totalViews,
+                'mostViewed' => $mostViewedProperty ? [
+                    'name' => $mostViewedProperty->property_name,
+                    'location' => $mostViewedProperty->location ?? 'Unknown',
+                    'price' => $mostViewedProperty->price ?? 0,
+                    'image' => is_array($mostViewedProperty->property_image) 
+                        ? ($mostViewedProperty->property_image[0] ?? null) // Get first image if array
+                        : $mostViewedProperty->property_image // Otherwise, return as is
+                ] : null,
+            ]);
+        }
+        
 
 
 

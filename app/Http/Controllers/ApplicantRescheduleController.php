@@ -30,8 +30,21 @@ class ApplicantRescheduleController extends Controller
         // Fetch admin's scheduled interview (if exists)
         $appointment = ApplicantAppointment::where('applicant_id', $id)->first();
     
+        // ✅ Follow protocol:
+        // - If `reschedule` is approved, use `new_schedule`
+        // - If rejected, always use `admin_schedule`
+        $finalSchedule = ($reschedule && $reschedule->status === 'approved')
+            ? $reschedule->new_schedule
+            : ($appointment ? $appointment->schedule_datetime : null);
+    
         // Ensure a structured response
         return response()->json([
+            'applicant' => [  // ✅ Ensure applicant details are included
+            'name' => $applicant->first_name . ' ' . $applicant->last_name,
+            'email' => $applicant->email,
+            'phone' => $applicant->phone,
+            'position' => $applicant->job_title, // ✅ Fetch job title as position
+        ],
             'reschedule' => $reschedule ? [
                 'id' => $reschedule->id,
                 'applicant_id' => $reschedule->applicant_id,
@@ -54,8 +67,10 @@ class ApplicantRescheduleController extends Controller
                 'admin_schedule' => null,
                 'admin_message' => "No scheduled interview",
             ],
+            'final_schedule' => $finalSchedule, // ✅ Ensures correct schedule is used
         ]);
     }
+    
     
     
     
@@ -147,6 +162,25 @@ class ApplicantRescheduleController extends Controller
             'reschedule' => $reschedule
         ], 200);
     }
+
+    public function index()
+{
+    $applicants = JobApplication::with(['reschedule', 'appointment'])->get();
+
+    return response()->json($applicants->map(function ($applicant) {
+        return [
+            'applicant_id' => $applicant->id,
+            'reschedule' => $applicant->reschedule ? [
+                'new_schedule' => $applicant->reschedule->new_schedule,
+                'status' => $applicant->reschedule->status,
+            ] : null,
+            'appointment' => $applicant->appointment ? [
+                'admin_schedule' => $applicant->appointment->schedule_datetime,
+            ] : null,
+        ];
+    }));
+}
+
     
 
     

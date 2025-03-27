@@ -17,6 +17,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriberController;
 use Illuminate\Http\Request;
 
+Route::get('/applicant-reschedules', [ApplicantRescheduleController::class, 'index']);
 Route::get('/reschedule/{id}', [ApplicantRescheduleController::class, 'show']);
 Route::post('/reschedule', [ApplicantRescheduleController::class, 'store']);
 Route::put('/reschedule/{id}', [ApplicantRescheduleController::class, 'updateStatus']);
@@ -65,6 +66,7 @@ Route::post('/news', [NewsPostController::class, 'store']);
 Route::post('/news/{id}', [NewsPostController::class, 'update']);
 Route::delete('/news/{id}', [NewsPostController::class, 'destroy']);
 
+Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
 Route::get('/appointments', [AppointmentController::class, 'index']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
 Route::post('/appointments/{id}/reply', [AppointmentController::class, 'reply']);

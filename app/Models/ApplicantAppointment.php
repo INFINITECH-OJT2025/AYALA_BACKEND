@@ -17,7 +17,7 @@ class ApplicantAppointment extends Model
 
     public function applicant()
     {
-        return $this->belongsTo(JobApplication::class, 'applicant_id');
+        return $this->belongsTo(JobApplication::class, 'applicant_id', 'id');
     }
 }
 
