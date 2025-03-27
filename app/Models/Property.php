@@ -40,8 +40,8 @@ class Property extends Model
     ];
 
     protected $casts = [
+        'other_details' => 'json',
         'property_image' => 'array', // ✅ Ensures images are stored as an array
-        'type_of_listing' => 'array',
         'other_details' => 'array',
         'pool_area' => 'boolean',
         'guest_suite' => 'boolean',

@@ -55,6 +55,19 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .unsubscribe {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+        .unsubscribe a {
+            color: #d32f2f;
+            text-decoration: none;
+        }
+        .unsubscribe a:hover {
+            text-decoration: underline;
+        }
         .footer {
             font-size: 14px;
             color: #777;
@@ -75,6 +88,11 @@
         <a href="http://localhost:3000/landing/properties" class="btn">View Properties</a>
 
         <p class="footer">Thank you for staying updated with our latest property listings.</p>
+
+        <p class="unsubscribe">
+            If you no longer wish to receive our emails, you can 
+            <a href="https://yourwebsite.com/unsubscribe">unsubscribe here</a>.
+        </p>
     </div>
 </body>
 </html>

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\PropertyApprovedMail;
 use App\Mail\PropertyRejectedMail;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Log;
 
 class PropertyController extends Controller
 {
@@ -37,12 +38,17 @@ class PropertyController extends Controller
             'parking'        => 'sometimes|required|string|max:255',
             'unit_type'      => 'required|string',
             'unit_status'    => 'sometimes|required|string|max:255',
-           'type_of_listing' => 'sometimes|required|string', 
-            'property_image' => 'sometimes|array',  // Make images optional
+            'type_of_listing' => 'sometimes|required|string|max:255', 
+            'property_image' => 'sometimes|array',  
             'property_image.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
-            'features' => 'sometimes|string', // Expect a JSON string
-            'status' => 'in:pending,approved,rejected', // Ensure status is allowed
+            'features' => 'sometimes|string',
+            'status' => 'in:pending,approved,rejected',
+            'other_details' => 'sometimes|nullable|json', // ✅ Accept JSON string
+            'other_details.*' => 'string|max:255', // ✅ Each detail should be a string
         ]);
+        
+$data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
+        
         $validated['status'] = $request->input('status', 'pending'); // Default is pending
     
         if ($validator->fails()) {
@@ -51,12 +57,14 @@ class PropertyController extends Controller
     
         $data = $validator->validated();
         
+        $data['other_details'] = is_string($request->other_details)
+        ? json_decode($request->other_details, true) // Convert JSON string to array
+        : $request->other_details; // If already an array, keep it
+    
     
         // ✅ Decode JSON features field into an array
         $data['features'] = $request->has('features') ? json_decode($request->features, true) : [];
-        $data['type_of_listing'] = is_string($request->type_of_listing)
-        ? json_decode($request->type_of_listing, true)
-        : $request->type_of_listing;
+    
     
         // ✅ Define all boolean fields and ensure they have a value (default: false)
         $booleanFields = [
@@ -93,6 +101,8 @@ class PropertyController extends Controller
 
         return response()->json($property, 201);
     }
+
+    
     
     public function update(Request $request, Property $property)
     {
@@ -110,23 +120,30 @@ class PropertyController extends Controller
             'parking'        => 'sometimes|required|string|max:255',
             'unit_type'      => 'sometimes|required|string',
             'unit_status'    => 'sometimes|required|string|max:255',
-            'type_of_listing' => 'sometimes|required|string', 
+            'type_of_listing' => 'sometimes|required|string|max:255', 
             'property_image.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
             'features' => 'sometimes|string',
             'status' => 'in:pending,approved,rejected', // Ensure status is allowed
+            'other_details' => 'sometimes|required|string', // ✅ Accept JSON string
+            'other_details.*' => 'string|max:255', // ✅ Each detail should be a string
         ]);
-
         
 
+
+        $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $data = $validator->validated();
-        $data['type_of_listing'] = is_string($request->type_of_listing)
-        ? json_decode($request->type_of_listing, true)
-        : $request->type_of_listing;
+    
 
+        $data['other_details'] = is_string($request->other_details)
+        ? json_decode($request->other_details, true) // Convert JSON string to array
+        : $request->other_details; // If already an array, keep it
+    
+    
+    
 
         // ✅ Ensure all boolean fields are properly set (default to false if not provided)
         $booleanFields = [
@@ -182,6 +199,7 @@ class PropertyController extends Controller
             if (!$property) {
                 return response()->json(['message' => 'Property not found'], 404);
             }
+            
 
             return response()->json($property);
         }
@@ -306,6 +324,7 @@ class PropertyController extends Controller
         ] : null,
     ]);
 }
+
 
 
         

@@ -60,6 +60,19 @@
         .btn:hover {
             background-color: #005a4a;
         }
+        .unsubscribe {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+        .unsubscribe a {
+            color: #d32f2f;
+            text-decoration: none;
+        }
+        .unsubscribe a:hover {
+            text-decoration: underline;
+        }
         .footer {
             font-size: 14px;
             color: #777;
@@ -88,6 +101,11 @@
         <a href="https://www.ayalaland.com.ph/careers" class="btn">View Job Listings</a>
 
         <p class="footer">Stay updated with the latest career opportunities at AyalaLand.</p>
+
+        <p class="unsubscribe">
+            If you no longer wish to receive our emails, you can 
+            <a href="https://yourwebsite.com/unsubscribe">unsubscribe here</a>.
+        </p>
     </div>
 </body>
 </html>

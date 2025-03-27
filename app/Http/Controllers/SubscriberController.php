@@ -22,4 +22,19 @@ class SubscriberController extends Controller {
 
         return response()->json(['success' => true, 'message' => 'Subscription successful! A confirmation email has been sent.']);
     }
+
+    public function unsubscribe(Request $request): JsonResponse {
+        $validated = $request->validate([
+            'email' => 'required|email|exists:subscribers,email'
+        ]);
+    
+        $deleted = Subscriber::where('email', $validated['email'])->delete();
+    
+        if ($deleted) {
+            return response()->json(['success' => true, 'message' => 'You have been unsubscribed successfully.']);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'Unsubscription failed. Please try again.'], 500);
+    }
+    
 }

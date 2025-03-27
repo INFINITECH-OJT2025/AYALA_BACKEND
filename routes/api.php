@@ -30,6 +30,7 @@ Route::options('/{any}', function (Request $request) {
     return response()->json(['status' => 'OK'], 200);
 })->where('any', '.*');
 
+Route::post('/unsubscribe', [SubscriberController::class, 'unsubscribe']);
 Route::post('/subscribe', [SubscriberController::class, 'subscribe']);
 
 Route::get('/about-us', [AboutUsController::class, 'index']); // ✅ Fetch About Us
