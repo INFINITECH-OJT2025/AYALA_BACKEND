@@ -9,6 +9,7 @@ use App\Models\ApplicantAppointment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicantNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class ApplicantRescheduleController extends Controller
@@ -181,6 +182,38 @@ class ApplicantRescheduleController extends Controller
     }));
 }
 
+public function getUpcomingInterviews()
+{
+    $tomorrow = Carbon::tomorrow()->format('Y-m-d');
+
+    // Fetch applicants with their reschedule & appointment details
+    $applicants = JobApplication::with(['reschedule', 'appointment'])->get();
+
+    $upcomingInterviews = $applicants->map(function ($applicant) use ($tomorrow) {
+        $finalSchedule = null;
+
+        if ($applicant->reschedule && $applicant->reschedule->status === 'approved') {
+            $finalSchedule = $applicant->reschedule->new_schedule;
+        } elseif ($applicant->appointment) {
+            $finalSchedule = $applicant->appointment->schedule_datetime;
+        }
+
+        if ($finalSchedule && Carbon::parse($finalSchedule)->format('Y-m-d') === $tomorrow) {
+            return [
+                'applicant_id' => $applicant->id,
+                'name' => $applicant->first_name . ' ' . $applicant->last_name,
+                'email' => $applicant->email,
+                'phone' => $applicant->phone,
+                'position' => $applicant->job_title,
+                'final_schedule' => $finalSchedule,
+            ];
+        }
+
+        return null;
+    })->filter(); // Remove null values
+
+    return response()->json($upcomingInterviews->values());
+}
     
 
     

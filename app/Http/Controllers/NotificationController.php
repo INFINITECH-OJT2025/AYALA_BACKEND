@@ -21,12 +21,13 @@ class NotificationController extends Controller
                     'id' => $notif->id,
                     'message' => $notif->message,
                     'type' => $notif->type,
-                    'isRead' => $notif->is_read, // ✅ Convert snake_case to camelCase
+                    'is_read' => $notif->is_read, // ✅ Change back to 'is_read' instead of 'isRead'
                     'created_at' => $notif->created_at,
                 ];
             })
         );
     }
+    
     
 
     public function markAsRead($id)
@@ -39,13 +40,14 @@ class NotificationController extends Controller
 
     public function markAllAsRead()
     {
-        $updated = Notification::where('is_read', 'unread')->update(['is_read' => 'read']);
+        $updated = Notification::where('is_read', '!=', 'read')->update(['is_read' => 'read']);
     
         return response()->json([
             'message' => 'All notifications marked as read.',
             'updated_count' => $updated
         ]);
     }
+    
     
 
     public function deleteNotification($id)
@@ -55,21 +57,22 @@ class NotificationController extends Controller
     }
 
     public function restoreNotification(Request $request)
-{
-    $request->validate([
-        'message' => 'required|string',
-        'type' => 'required|string|in:success,error,info',
-        'is_read' => 'boolean'
-    ]);
-
-    $notification = Notification::create([
-        'message' => $request->message,
-        'type' => $request->type,
-        'is_read' => $request->is_read ?? false,
-    ]);
-
-    return response()->json($notification, 201);
-}
+    {
+        $request->validate([
+            'message' => 'required|string',
+            'type' => 'required|string|in:success,error,info',
+            'is_read' => 'nullable|string|in:read,unread', // ✅ Fix: Accepts 'read' or 'unread'
+        ]);
+    
+        $notification = Notification::create([
+            'message' => $request->message,
+            'type' => $request->type,
+            'is_read' => $request->is_read ?? 'unread', // ✅ Default to 'unread' if missing
+        ]);
+    
+        return response()->json($notification, 201);
+    }
+    
 
 
     // ✅ Store a new notification

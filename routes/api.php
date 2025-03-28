@@ -11,11 +11,17 @@ use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PropertyInquiryController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ContactDetailController;
 use App\Http\Controllers\NewsPostController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriberController;
 use Illuminate\Http\Request;
+
+Route::get('/upcoming-interviews', [ApplicantRescheduleController::class, 'getUpcomingInterviews']);
+
+Route::get('/contact-details', [ContactDetailController::class, 'index']);
+Route::post('/contact-details', [ContactDetailController::class, 'update']);
 
 Route::get('/applicant-reschedules', [ApplicantRescheduleController::class, 'index']);
 Route::get('/reschedule/{id}', [ApplicantRescheduleController::class, 'show']);

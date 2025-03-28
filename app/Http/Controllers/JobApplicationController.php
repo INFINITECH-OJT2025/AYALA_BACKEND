@@ -24,8 +24,9 @@ class JobApplicationController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'required|string',
-            'resume' => 'required|mimes:pdf,doc,docx',
+            'resume' => 'required|mimes:pdf,doc,docx,txt,odt,rtf,jpg,jpeg,png', // ✅ Allows all common resume formats + images (5MB max)
         ]);
+        
     
         // ✅ Check if applicant has already applied for this specific job title
         $existingApplication = JobApplication::where('email', $request->email)
