@@ -68,7 +68,7 @@ class ApplicantRescheduleController extends Controller
                 'admin_schedule' => null,
                 'admin_message' => "No scheduled interview",
             ],
-            'final_schedule' => $finalSchedule, // ✅ Ensures correct schedule is used
+            'final_schedule' => $finalSchedule ? Carbon::parse($finalSchedule)->format('F d, Y h:i A') : null // ✅ Ensures correct schedule is used
         ]);
     }
     
@@ -164,7 +164,7 @@ class ApplicantRescheduleController extends Controller
         ], 200);
     }
 
-    public function index()
+public function index()
 {
     $applicants = JobApplication::with(['reschedule', 'appointment'])->get();
 
@@ -172,11 +172,11 @@ class ApplicantRescheduleController extends Controller
         return [
             'applicant_id' => $applicant->id,
             'reschedule' => $applicant->reschedule ? [
-                'new_schedule' => $applicant->reschedule->new_schedule,
+                'new_schedule' => Carbon::parse($applicant->reschedule->new_schedule)->format('F d, Y h:i A'),
                 'status' => $applicant->reschedule->status,
             ] : null,
             'appointment' => $applicant->appointment ? [
-                'admin_schedule' => $applicant->appointment->schedule_datetime,
+                'admin_schedule' => Carbon::parse($applicant->appointment->schedule_datetime)->format('F d, Y h:i A'),
             ] : null,
         ];
     }));
@@ -205,7 +205,7 @@ public function getUpcomingInterviews()
                 'email' => $applicant->email,
                 'phone' => $applicant->phone,
                 'position' => $applicant->job_title,
-                'final_schedule' => $finalSchedule,
+               'final_schedule' => Carbon::parse($finalSchedule)->format('F d, Y h:i A')
             ];
         }
 
