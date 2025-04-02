@@ -20,16 +20,17 @@ class AboutUsController extends Controller
     
             // ✅ Ensure `history` is properly decoded
             $aboutUs->history = !empty($aboutUs->history) ? json_decode($aboutUs->history, true) : [];
-    
-            // ✅ Convert images to full URLs
-            $aboutUs->hero_image = $aboutUs->hero_image ? asset("storage/" . $aboutUs->hero_image) : null;
+            $aboutUs->programs = !empty($aboutUs->programs) ? json_decode($aboutUs->programs, true) : [];
+            // ✅ Convert hero media (image/video) to full URL
+            if ($aboutUs->hero_image) {
+                $aboutUs->hero_image = asset("storage/" . $aboutUs->hero_image);
+            }
     
             return response()->json($aboutUs);
         } catch (\Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500);
         }
     }
-    
 
     // ✅ Create or Update About Us Content
     public function store(Request $request)
@@ -45,12 +46,17 @@ class AboutUsController extends Controller
             'history.*.title' => 'required|string',
             'history.*.description' => 'required|string',
             'history.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
-            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
+            'hero_image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,mp4', // ✅ Allows image and video
+
+            'programs' => 'nullable|array',
+            'programs.*.title' => 'required|string',
+            'programs.*.description' => 'required|string',
+            'programs.*.link' => 'required|url', // ✅ Ensure valid URL
         ]);
 
         $aboutUs = AboutUs::firstOrNew([]);
 
-        // ✅ Handle hero image upload
+        // ✅ Handle hero media upload (image or video)
         if ($request->hasFile('hero_image')) {
             if ($aboutUs->hero_image) {
                 Storage::delete('public/' . $aboutUs->hero_image);
@@ -75,12 +81,24 @@ class AboutUsController extends Controller
             }
         }
 
-        $aboutUs->fill($request->except(['hero_image', 'history']));
-        $aboutUs->history = json_encode($historyData);
-        $aboutUs->save();
-
-        return response()->json(['message' => 'About Us updated successfully!', 'data' => $aboutUs]);
+        $programsData = [];
+    if ($request->has('programs')) {
+        foreach ($request->programs as $program) {
+            $programsData[] = [
+                'title' => $program['title'],
+                'description' => $program['description'],
+                'link' => $program['link'],
+            ];
+        }
     }
+
+    $aboutUs->fill($request->except(['hero_image', 'history', 'programs']));
+    $aboutUs->history = json_encode($historyData);
+    $aboutUs->programs = json_encode($programsData);
+    $aboutUs->save();
+
+    return response()->json(['message' => 'About Us updated successfully!', 'data' => $aboutUs]);
+}
 
     // ✅ Delete About Us Content
     public function destroy()
@@ -90,7 +108,7 @@ class AboutUsController extends Controller
             return response()->json(['message' => 'No About Us content found'], 404);
         }
 
-        // ✅ Delete hero image
+        // ✅ Delete hero media (image/video)
         if ($aboutUs->hero_image) {
             Storage::delete('public/' . $aboutUs->hero_image);
         }
