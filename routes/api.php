@@ -12,11 +12,24 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PropertyInquiryController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ContactDetailController;
+use App\Http\Controllers\FAQController;
 use App\Http\Controllers\NewsPostController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriberController;
+use App\Http\Controllers\TestimonialController;
 use Illuminate\Http\Request;
+
+Route::get('/testimonials', [TestimonialController::class, 'index']);
+Route::patch('/testimonials/{id}/status', [TestimonialController::class, 'updateStatus']);
+Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy']);
+Route::post('/testimonial', [TestimonialController::class, 'store']);
+
+Route::get('/faqs', [FAQController::class, 'index']);
+Route::post('/faqs', [FAQController::class, 'store']);
+Route::put('/faqs/{faq}', [FAQController::class, 'update']);
+Route::delete('/faqs/{faq}', [FAQController::class, 'destroy']);
+
 
 Route::get('/upcoming-interviews', [ApplicantRescheduleController::class, 'getUpcomingInterviews']);
 

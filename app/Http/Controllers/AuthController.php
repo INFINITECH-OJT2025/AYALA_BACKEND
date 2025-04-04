@@ -57,7 +57,6 @@ class AuthController extends Controller
         return response()->json(["message" => "Logged out"], 200);
     }
 
-    // ✅ Forgot Password - Send Reset Link
     public function forgotPassword(Request $request) {
         $request->validate([
             "email" => "required|email|exists:users,email", 
