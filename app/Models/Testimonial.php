@@ -12,6 +12,6 @@ class Testimonial extends Model
 
     protected $casts = [
         'media' => 'array',
-        'status' => 'boolean',
+        'status' => 'string',
     ];
 }

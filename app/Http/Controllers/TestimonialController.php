@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class TestimonialController extends Controller
 {
-    // Store a new testimonial
     public function store(Request $request)
     {
         $request->validate([
@@ -38,7 +37,7 @@ class TestimonialController extends Controller
             'experience' => $request->experience,
             'photo' => $photoPath,
             'media' => $mediaPaths,
-            'status' => 0, // default to not featured
+            'status' => 'unpublished', // default to unpublished
         ]);
 
         return response()->json(['message' => 'Testimonial submitted successfully.']);
@@ -46,22 +45,69 @@ class TestimonialController extends Controller
 
     // Fetch all testimonials
     public function index()
-{
-    $testimonials = Testimonial::all();
-
-    // Optional: If you want to include the media URLs and the full photo URL, you can format them like so:
+    {
+        $testimonials = Testimonial::all();
+    
         $testimonials = $testimonials->map(function ($testimonial) {
-            $testimonial->photo_url = $testimonial->photo ? Storage::url($testimonial->photo) : null;
-            $testimonial->media_urls = array_map(fn($media) => Storage::url($media), $testimonial->media);
-            
-            // Debugging: Log the URLs
-            Log::info('Photo URL: ' . $testimonial->photo_url);
-            Log::info('Media URLs: ' . json_encode($testimonial->media_urls));
-            
+            $testimonial->photo_url = $testimonial->photo ? asset('storage/' . $testimonial->photo) : null;
+            $testimonial->media_urls = array_map(fn($media) => asset('storage/' . $media), $testimonial->media ?? []);
+    
+            Log::info('Returned Testimonial:', [
+                'id' => $testimonial->id,
+                'photo' => $testimonial->photo,
+                'photo_url' => $testimonial->photo_url,
+                'media' => $testimonial->media,
+                'media_urls' => $testimonial->media_urls,
+            ]);
+    
             return $testimonial;
         });
+    
+        return response()->json($testimonials);
+    }
 
-    return response()->json($testimonials);
+    // Update the status of a testimonial
+    public function updateStatus($id, Request $request)
+    {
+        Log::info("Updating testimonial status for ID: $id");
+    
+        $testimonial = Testimonial::findOrFail($id);
+    
+        // Validate the status input (published or unpublished)
+        $request->validate([
+            'status' => 'required|in:unpublished,published', // status can only be 'unpublished' or 'published'
+        ]);
+    
+        // Update the status
+        $testimonial->status = $request->status;
+        $testimonial->save();
+    
+        return response()->json(['message' => 'Testimonial status updated successfully.']);
+    }
+
+    // Delete a testimonial
+public function destroy($id)
+{
+    // Find the testimonial by ID
+    $testimonial = Testimonial::findOrFail($id);
+
+    // Delete the photo file if it exists
+    if ($testimonial->photo) {
+        Storage::disk('public')->delete($testimonial->photo);
+    }
+
+    // Delete the media files if they exist
+    if ($testimonial->media) {
+        foreach ($testimonial->media as $mediaFile) {
+            Storage::disk('public')->delete($mediaFile);
+        }
+    }
+
+    // Delete the testimonial from the database
+    $testimonial->delete();
+
+    return response()->json(['message' => 'Testimonial deleted successfully.']);
 }
+
 
 }

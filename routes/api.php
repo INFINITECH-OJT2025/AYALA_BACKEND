@@ -21,7 +21,7 @@ use App\Http\Controllers\TestimonialController;
 use Illuminate\Http\Request;
 
 Route::get('/testimonials', [TestimonialController::class, 'index']);
-Route::patch('/testimonials/{id}/status', [TestimonialController::class, 'updateStatus']);
+Route::put('/testimonials/{id}/status', [TestimonialController::class, 'updateStatus']);
 Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy']);
 Route::post('/testimonial', [TestimonialController::class, 'store']);
 
