@@ -45,7 +45,7 @@ class ServiceController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
             'status' => 'sometimes|required|in:active,inactive',
         ]);
 

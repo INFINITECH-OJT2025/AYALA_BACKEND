@@ -18,16 +18,19 @@ class JobController extends Controller
 
     public function store(Request $request) {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'type' => 'nullable|string|max:255',
-            'category' => 'nullable|string|max:255',
-            'salary' => 'nullable|string|max:255',
+            'title' => 'required|string|',
+            'location' => 'required|string|',
+            'type' => 'nullable|string|',
+            'category' => 'nullable|string|',
+            'salary' => 'nullable|string|',
             'deadline' => 'nullable|date',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg',
-            'slots' => 'required|integer|min:1'
-        ]);
+            'slots' => 'required|integer|min:1',
+            'qualification' => 'nullable|string|',
+            'seniority_level' => 'nullable|string|',
+            'job_function' => 'nullable|string|',
+        ]);        
     
         // ✅ Check if a job with the same title & location already exists
         $existingJob = Job::where('title', $request->title)
@@ -101,17 +104,20 @@ class JobController extends Controller
         $job = Job::findOrFail($id);
     
         $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'location' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|string|max:255',
-            'category' => 'sometimes|string|max:255',
-            'salary' => 'sometimes|string|max:255',
+            'title' => 'sometimes|required|string|',
+            'location' => 'sometimes|required|string|',
+            'type' => 'sometimes|string|',
+            'category' => 'sometimes|string|',
+            'salary' => 'sometimes|string|',
             'deadline' => 'sometimes|date',
             'description' => 'sometimes|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg',
-            'slots' => 'sometimes|integer|min:1'
+            'slots' => 'sometimes|integer|min:1',
+            'qualification' => 'sometimes|string|',
+            'seniority_level' => 'sometimes|string|',
+            'job_function' => 'sometimes|string|',
         ]);
-    
+        
         if (($request->title !== $job->title || $request->location !== $job->location) && $request->has(['title'])) {
             $existingJob = Job::where('title', $request->title)
                               ->where('id', '!=', $id) 
