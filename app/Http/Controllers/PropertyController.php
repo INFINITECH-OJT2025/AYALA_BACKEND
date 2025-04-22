@@ -38,47 +38,54 @@ class PropertyController extends Controller
             'parking'        => 'sometimes|required|string|max:255',
             'unit_type'      => 'required|string',
             'unit_status'    => 'sometimes|required|string|max:255',
-            'type_of_listing' => 'sometimes|required|string|max:255', 
-            'property_image' => 'sometimes|array',  
+            'type_of_listing' => 'sometimes|required|string|max:255',
+            'property_image' => 'sometimes|array',
             'property_image.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
             'features' => 'sometimes|string',
             'status' => 'in:pending,approved,rejected',
-            'other_details' => 'sometimes|nullable|json', // ✅ Accept JSON string
-            'other_details.*' => 'string|max:255', // ✅ Each detail should be a string
+            'other_details' => 'sometimes|nullable|json', 
+            'other_details.*' => 'string|max:255', 
         ]);
-        
-$data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
-        
-        $validated['status'] = $request->input('status', 'pending'); // Default is pending
-    
+
+        $data['type_of_listing'] = $request->type_of_listing; 
+
+        $validated['status'] = $request->input('status', 'pending'); 
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         $data = $validator->validated();
-        
+
         $data['other_details'] = is_string($request->other_details)
-        ? json_decode($request->other_details, true) // Convert JSON string to array
-        : $request->other_details; // If already an array, keep it
+            ? json_decode($request->other_details, true) 
+            : $request->other_details; 
+
+
     
-    
-        // ✅ Decode JSON features field into an array
         $data['features'] = $request->has('features') ? json_decode($request->features, true) : [];
-    
-    
-        // ✅ Define all boolean fields and ensure they have a value (default: false)
+
+
+       
         $booleanFields = [
-            'pool_area', 'guest_suite', 'underground_parking', 'pet_friendly_facilities',
-            'balcony_terrace', 'club_house', 'gym_fitness_center', 'elevator',
-            'concierge_services', 'security'
+            'pool_area',
+            'guest_suite',
+            'underground_parking',
+            'pet_friendly_facilities',
+            'balcony_terrace',
+            'club_house',
+            'gym_fitness_center',
+            'elevator',
+            'concierge_services',
+            'security'
         ];
-    
+
         foreach ($booleanFields as $field) {
-            // ✅ Check if the feature is in the selected features array
+          
             $data[$field] = in_array(ucwords(str_replace("_", " ", $field)), $data['features']);
         }
-        
-        // ✅ Upload images to public storage and save paths
+
+     
         $imagePaths = [];
         if ($request->hasFile('property_image')) {
             foreach ($request->file('property_image') as $image) {
@@ -87,12 +94,12 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
                 $imagePaths[] = asset('storage/properties/' . $filename);
             }
         }
-    
-        $data['property_image'] = $imagePaths; // Store as an array
+
+        $data['property_image'] = $imagePaths; 
 
         $property = Property::create($data);
 
-        // ✅ Now, we can use $property in the notification
+      
         Notification::create([
             'message' => "New property submitted: " . $property->property_name,
             'type' => 'success',
@@ -102,8 +109,8 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
         return response()->json($property, 201);
     }
 
-    
-    
+
+
     public function update(Request $request, Property $property)
     {
         $validator = Validator::make($request->all(), [
@@ -120,43 +127,49 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
             'parking'        => 'sometimes|required|string|max:255',
             'unit_type'      => 'sometimes|required|string',
             'unit_status'    => 'sometimes|required|string|max:255',
-            'type_of_listing' => 'sometimes|required|string|max:255', 
+            'type_of_listing' => 'sometimes|required|string|max:255',
             'property_image.*' => 'image|mimes:jpeg,png,jpg,gif,svg',
             'features' => 'sometimes|string',
-            'status' => 'in:pending,approved,rejected', // Ensure status is allowed
-            'other_details' => 'sometimes|required|string', // ✅ Accept JSON string
-            'other_details.*' => 'string|max:255', // ✅ Each detail should be a string
+            'status' => 'in:pending,approved,rejected', 
+            'other_details' => 'sometimes|required|string', 
+            'other_details.*' => 'string|max:255', 
         ]);
-        
 
 
-        $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
+
+        $data['type_of_listing'] = $request->type_of_listing; 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $data = $validator->validated();
-    
+
 
         $data['other_details'] = is_string($request->other_details)
-        ? json_decode($request->other_details, true) // Convert JSON string to array
-        : $request->other_details; // If already an array, keep it
-    
-    
-    
+            ? json_decode($request->other_details, true) 
+            : $request->other_details; 
 
-        // ✅ Ensure all boolean fields are properly set (default to false if not provided)
+
+
+
+ 
         $booleanFields = [
-            'pool_area', 'guest_suite', 'underground_parking', 'pet_friendly_facilities',
-            'balcony_terrace', 'club_house', 'gym_fitness_center', 'elevator',
-            'concierge_services', 'security'
+            'pool_area',
+            'guest_suite',
+            'underground_parking',
+            'pet_friendly_facilities',
+            'balcony_terrace',
+            'club_house',
+            'gym_fitness_center',
+            'elevator',
+            'concierge_services',
+            'security'
         ];
 
         foreach ($booleanFields as $field) {
             $data[$field] = filter_var($request->input($field, $property->$field ?? false), FILTER_VALIDATE_BOOLEAN);
         }
 
-        // ✅ Delete old images if new ones are uploaded
         if ($request->hasFile('property_image')) {
             if ($property->property_images) {
                 foreach ($property->property_images as $oldImage) {
@@ -165,7 +178,6 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
                 }
             }
 
-            // ✅ Store new images
             $imagePaths = [];
             foreach ($request->file('property_image') as $image) {
                 $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
@@ -179,155 +191,135 @@ $data['type_of_listing'] = $request->type_of_listing; // ✅ Save as plain text
         return response()->json($property);
     }
 
-        public function destroy(Property $property)
-        {
-            if ($property->property_images) {
-                foreach ($property->property_images as $image) {
-                    $filePath = str_replace(asset('/'), '', $image);
-                    Storage::delete($filePath);
-                }
+    public function destroy(Property $property)
+    {
+        if ($property->property_images) {
+            foreach ($property->property_images as $image) {
+                $filePath = str_replace(asset('/'), '', $image);
+                Storage::delete($filePath);
             }
+        }
 
-            $property->delete();
-            return response()->json(['message' => 'Property deleted successfully']);
-        }        
+        $property->delete();
+        return response()->json(['message' => 'Property deleted successfully']);
+    }
 
-        public function show($id)
-        {
-            $property = Property::find($id);
+    public function show($id)
+    {
+        $property = Property::find($id);
 
-            if (!$property) {
-                return response()->json(['message' => 'Property not found'], 404);
-            }
-            
-
-            return response()->json($property);
+        if (!$property) {
+            return response()->json(['message' => 'Property not found'], 404);
         }
 
 
+        return response()->json($property);
+    }
 
-        public function trackView($id, Request $request)
-        {
-            
-            $ip = $request->ip();
 
-            // Check if the IP already exists for this property
-            $existingView = PropertyView::where('property_id', $id)
-                                        ->where('ip_address', $ip)
-                                        ->exists();
 
-            if (!$existingView) {
-                // Save new unique view
-                PropertyView::create([
-                    'property_id' => $id,
-                    'ip_address' => $ip,
-                ]);
-            }
+    public function trackView($id, Request $request)
+    {
 
-            // Get the updated unique view count
-            $uniqueViews = PropertyView::where('property_id', $id)->count();
+        $ip = $request->ip();
 
-            return response()->json(['unique_views' => $uniqueViews]);
-        }
+        $existingView = PropertyView::where('property_id', $id)
+            ->where('ip_address', $ip)
+            ->exists();
 
-        
-        public function updatePropertyStatus(Request $request, $id)
-        {
-            $property = Property::findOrFail($id);
-            $status = $request->status;
-            $reason = $request->reason ?? null;
-        
-            // Ensure property has a valid email
-            if (!$property->email) {
-                return response()->json(['message' => 'Error: Property owner email not found'], 400);
-            }
-        
-            // Update property status
-            $property->status = $status;
-            $property->save();
-        
-            // Send email notifications
-            if ($status === 'approved') {
-                Mail::to($property->email)->send(new PropertyApprovedMail($property));
-                $this->sendNewPropertyEmail($property);
-            } elseif ($status === 'rejected' && $reason) {
-                Mail::to($property->email)->send(new PropertyRejectedMail($property, $reason));
-            }
-        
-            return response()->json(['message' => "Property $status successfully."]);
-        }
-
-        // ✅ Notify subscribers about new approved property
-            private function sendNewPropertyEmail($property)
-            {
-                $subscribers = \App\Models\Subscriber::pluck('email');
-                foreach ($subscribers as $email) {
-                    Mail::to($email)->send(new \App\Mail\NewPropertyMail($property));
-                }
-            }
-
-        
-
-        // public function updateStatus($id, Request $request)
-        // {
-        //     $property = Property::find($id);
-        //     if (!$property) {
-        //         return response()->json(['message' => 'Property not found'], 404);
-        //     }
-
-        //     $request->validate([
-        //         'status' => 'required|in:approved,rejected'
-        //     ]);
-
-        //     $property->status = $request->status;
-        //     $property->save();
-
-        //     return response()->json(['message' => 'Property status updated successfully']);
-        // }
-
-        public function getStats()
-        {
-            // Get total properties
-            $total = Property::count();
-        
-            // Use LIKE instead of JSON_CONTAINS because type_of_listing is now a VARCHAR
-            $forSale = Property::where('type_of_listing', 'LIKE', '%For Sale%')->count();
-            $forRent = Property::where('type_of_listing', 'LIKE', '%For Rent%')->count();
-        
-            // Get total unique views across all properties
-            $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
-        
-            // Get total views from all IP addresses (including duplicates)
-            $totalViews = \App\Models\PropertyView::count();
-        
-            // Get the most viewed property with tie-breaking logic (most recent wins if tied)
-            $mostViewedProperty = Property::withCount('views')
-                ->orderByDesc('views_count') // Sort by highest views
-                ->orderByDesc('created_at')  // If tied, pick the most recent
-                ->first();
-        
-            return response()->json([
-                'total' => $total,
-                'forSale' => $forSale,
-                'forRent' => $forRent,
-                'uniqueViews' => $uniqueViews,
-                'totalViews' => $totalViews,
-                'mostViewed' => $mostViewedProperty ? [
-                    'name' => $mostViewedProperty->property_name,
-                    'location' => $mostViewedProperty->location ?? 'Unknown',
-                    'price' => $mostViewedProperty->price ?? 0,
-                    'image' => is_array($mostViewedProperty->property_image) 
-                        ? ($mostViewedProperty->property_image[0] ?? null) // Get first image if array
-                        : $mostViewedProperty->property_image // Otherwise, return as is
-                ] : null,
+        if (!$existingView) {
+            PropertyView::create([
+                'property_id' => $id,
+                'ip_address' => $ip,
             ]);
         }
-        
+
+        $uniqueViews = PropertyView::where('property_id', $id)->count();
+
+        return response()->json(['unique_views' => $uniqueViews]);
+    }
+
+
+    public function updatePropertyStatus(Request $request, $id)
+    {
+        $property = Property::findOrFail($id);
+        $status = $request->status;
+        $reason = $request->reason ?? null;
+
+        if (!$property->email) {
+            return response()->json(['message' => 'Error: Property owner email not found'], 400);
+        }
+
+        $property->status = $status;
+        $property->save();
+
+        if ($status === 'approved') {
+            Mail::to($property->email)->send(new PropertyApprovedMail($property));
+            $this->sendNewPropertyEmail($property);
+        } elseif ($status === 'rejected' && $reason) {
+            Mail::to($property->email)->send(new PropertyRejectedMail($property, $reason));
+        }
+
+        return response()->json(['message' => "Property $status successfully."]);
+    }
+
+    private function sendNewPropertyEmail($property)
+    {
+        $subscribers = \App\Models\Subscriber::pluck('email');
+        foreach ($subscribers as $email) {
+            Mail::to($email)->send(new \App\Mail\NewPropertyMail($property));
+        }
+    }
 
 
 
-        
-        
+    // public function updateStatus($id, Request $request)
+    // {
+    //     $property = Property::find($id);
+    //     if (!$property) {
+    //         return response()->json(['message' => 'Property not found'], 404);
+    //     }
 
+    //     $request->validate([
+    //         'status' => 'required|in:approved,rejected'
+    //     ]);
+
+    //     $property->status = $request->status;
+    //     $property->save();
+
+    //     return response()->json(['message' => 'Property status updated successfully']);
+    // }
+
+    public function getStats()
+    {
+        $total = Property::count();
+
+        $forSale = Property::where('type_of_listing', 'LIKE', '%For Sale%')->count();
+        $forRent = Property::where('type_of_listing', 'LIKE', '%For Rent%')->count();
+
+        $uniqueViews = \App\Models\PropertyView::distinct('ip_address')->count();
+
+        $totalViews = \App\Models\PropertyView::count();
+
+        $mostViewedProperty = Property::withCount('views')
+            ->orderByDesc('views_count') 
+            ->orderByDesc('created_at')  
+            ->first();
+
+        return response()->json([
+            'total' => $total,
+            'forSale' => $forSale,
+            'forRent' => $forRent,
+            'uniqueViews' => $uniqueViews,
+            'totalViews' => $totalViews,
+            'mostViewed' => $mostViewedProperty ? [
+                'name' => $mostViewedProperty->property_name,
+                'location' => $mostViewedProperty->location ?? 'Unknown',
+                'price' => $mostViewedProperty->price ?? 0,
+                'image' => is_array($mostViewedProperty->property_image)
+                    ? ($mostViewedProperty->property_image[0] ?? null) 
+                    : $mostViewedProperty->property_image 
+            ] : null,
+        ]);
+    }
 }
-

@@ -7,13 +7,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SubscriptionConfirmation extends Mailable {
+class SubscriptionConfirmation extends Mailable
+{
     use Queueable, SerializesModels;
 
     public function __construct() {}
 
-    public function build() {
+    public function build()
+    {
         return $this->subject('Subscription Confirmed!')
-                    ->view('emails.subscription_confirmation');
+            ->view('emails.subscription_confirmation');
     }
 }

@@ -33,15 +33,15 @@ class ApplicantNotification extends Mailable
     public function build()
     {
         return $this->subject($this->subjectText)
-                    ->view('emails.notification')
-                    ->with([
-                        'subjectText' => $this->subjectText,
-                        'messageContent' => $this->messageContent,
-                        'applicantId' => $this->applicantId,
-                        'frontendUrl' => $this->frontendUrl,
-                        'applicantEmail' => $this->applicantEmail,
-                        'status' => $this->status, // ✅ Pass status
-                        'newSchedule' => $this->newSchedule, // ✅ Pass new schedule if available
-                    ]);
+            ->view('emails.notification')
+            ->with([
+                'subjectText' => $this->subjectText,
+                'messageContent' => $this->messageContent,
+                'applicantId' => $this->applicantId,
+                'frontendUrl' => $this->frontendUrl,
+                'applicantEmail' => $this->applicantEmail,
+                'status' => $this->status, // ✅ Pass status
+                'newSchedule' => $this->newSchedule, // ✅ Pass new schedule if available
+            ]);
     }
 }

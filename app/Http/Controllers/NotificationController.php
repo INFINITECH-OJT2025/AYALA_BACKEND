@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
@@ -10,45 +10,45 @@ use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
-    // ✅ Fetch unread notifications
+
     public function getNotifications()
     {
         $notifications = Notification::orderBy('created_at', 'desc')->get();
-    
+
         return response()->json(
             $notifications->map(function ($notif) {
                 return [
                     'id' => $notif->id,
                     'message' => $notif->message,
                     'type' => $notif->type,
-                    'is_read' => $notif->is_read, // ✅ Change back to 'is_read' instead of 'isRead'
+                    'is_read' => $notif->is_read,
                     'created_at' => $notif->created_at,
                 ];
             })
         );
     }
-    
-    
+
+
 
     public function markAsRead($id)
     {
         $notification = Notification::findOrFail($id);
         $notification->update(['is_read' => 'read']);
-    
+
         return response()->json(['message' => 'Notification marked as read.']);
     }
 
     public function markAllAsRead()
     {
         $updated = Notification::where('is_read', '!=', 'read')->update(['is_read' => 'read']);
-    
+
         return response()->json([
             'message' => 'All notifications marked as read.',
             'updated_count' => $updated
         ]);
     }
-    
-    
+
+
 
     public function deleteNotification($id)
     {
@@ -61,21 +61,21 @@ class NotificationController extends Controller
         $request->validate([
             'message' => 'required|string',
             'type' => 'required|string|in:success,error,info',
-            'is_read' => 'nullable|string|in:read,unread', // ✅ Fix: Accepts 'read' or 'unread'
+            'is_read' => 'nullable|string|in:read,unread',
         ]);
-    
+
         $notification = Notification::create([
             'message' => $request->message,
             'type' => $request->type,
-            'is_read' => $request->is_read ?? 'unread', // ✅ Default to 'unread' if missing
+            'is_read' => $request->is_read ?? 'unread',
         ]);
-    
+
         return response()->json($notification, 201);
     }
-    
 
 
-    // ✅ Store a new notification
+
+
     public function store(Request $request)
     {
         // ✅ Validate input
@@ -85,18 +85,16 @@ class NotificationController extends Controller
             'price' => 'required|numeric',
         ]);
 
-        // ✅ Save the new property
         $property = Property::create([
             'property_name' => $request->property_name,
             'location' => $request->location,
             'price' => $request->price,
-            'status' => 'pending', // Default status
+            'status' => 'pending',
         ]);
 
-        // ✅ Send notification to admin
         Notification::create([
             'message' => "New property submitted: {$property->property_name}",
-            'type' => 'success', // or 'info'
+            'type' => 'success',
             'is_read' => false,
         ]);
 
@@ -106,7 +104,8 @@ class NotificationController extends Controller
         ], 201);
     }
 
-    public function getJobApplicationNotifications() {
+    public function getJobApplicationNotifications()
+    {
         return response()->json(
             Notification::where('message', 'LIKE', '%job application%')
                 ->orderBy('created_at', 'desc')
@@ -114,7 +113,8 @@ class NotificationController extends Controller
         );
     }
 
-    public function getPropertyInquiryNotifications() {
+    public function getPropertyInquiryNotifications()
+    {
         return response()->json(
             Notification::where('message', 'LIKE', '%property inquiry%')
                 ->orderBy('created_at', 'desc')
@@ -122,7 +122,8 @@ class NotificationController extends Controller
         );
     }
 
-    public function getAppointmentNotifications() {
+    public function getAppointmentNotifications()
+    {
         return response()->json(
             Notification::where('message', 'LIKE', '%appointment booked%')
                 ->orderBy('created_at', 'desc')
@@ -130,7 +131,8 @@ class NotificationController extends Controller
         );
     }
 
-    public function getInquiryNotifications() {
+    public function getInquiryNotifications()
+    {
         return response()->json(
             Notification::where('message', 'LIKE', '%general inquiry%')
                 ->orderBy('created_at', 'desc')

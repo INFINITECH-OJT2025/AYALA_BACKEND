@@ -7,8 +7,10 @@ use App\Models\PropertyInquiry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
-class PropertyInquiryController extends Controller {
-    public function store(Request $request) {
+class PropertyInquiryController extends Controller
+{
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'property_id' => 'required|exists:properties,id',
             'last_name' => 'required|string|max:255',
@@ -16,7 +18,7 @@ class PropertyInquiryController extends Controller {
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'message' => 'required|string',
-            
+
         ]);
 
         $inquiry = PropertyInquiry::create($validated);
@@ -29,11 +31,13 @@ class PropertyInquiryController extends Controller {
         return response()->json(['message' => 'Inquiry sent successfully!', 'inquiry' => $inquiry], 201);
     }
 
-    public function index() {
+    public function index()
+    {
         return response()->json(PropertyInquiry::with('property')->get());
     }
 
-    public function reply(Request $request, $id) {
+    public function reply(Request $request, $id)
+    {
         $inquiry = PropertyInquiry::findOrFail($id);
         $validated = $request->validate(['message' => 'required|string']);
 
@@ -47,19 +51,22 @@ class PropertyInquiryController extends Controller {
         return response()->json(['message' => 'Reply sent successfully!']);
     }
 
-    public function archive($id) {
+    public function archive($id)
+    {
         $inquiry = PropertyInquiry::findOrFail($id);
         $inquiry->update(['status' => 'archived']);
         return response()->json(['message' => 'Inquiry archived successfully!']);
     }
 
-    public function unarchive($id) {
+    public function unarchive($id)
+    {
         $inquiry = PropertyInquiry::findOrFail($id);
         $inquiry->update(['status' => 'active']);
         return response()->json(['message' => 'Inquiry unarchived successfully!']);
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $inquiry = PropertyInquiry::findOrFail($id);
         $inquiry->delete();
         return response()->json(['message' => 'Inquiry deleted successfully!']);

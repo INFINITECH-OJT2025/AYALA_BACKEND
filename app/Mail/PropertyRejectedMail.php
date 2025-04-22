@@ -25,11 +25,10 @@ class PropertyRejectedMail extends Mailable
     public function build()
     {
         return $this->subject("Your Property Listing was Rejected")
-                    ->view("emails.property_rejected")
-                    ->with([
-                        "property" => $this->property,
-                        "reason" => $this->reason,
-                    ]);
+            ->view("emails.property_rejected")
+            ->with([
+                "property" => $this->property,
+                "reason" => $this->reason,
+            ]);
     }
 }
-

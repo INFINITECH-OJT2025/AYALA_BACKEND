@@ -22,9 +22,9 @@ class Property extends Model
         'floor_number',
         'unit_type',
         'unit_status',
-        'other_details', // ✅ New field to store multiple inputs
+        'other_details',
         'description',
-        'property_image', // ✅ Supports multiple images
+        'property_image',
         'pool_area',
         'guest_suite',
         'underground_parking',
@@ -36,12 +36,12 @@ class Property extends Model
         'elevator',
         'concierge_services',
         'security',
-        'status', 
+        'status',
     ];
 
     protected $casts = [
         'other_details' => 'json',
-        'property_image' => 'array', // ✅ Ensures images are stored as an array
+        'property_image' => 'array',
         'other_details' => 'array',
         'pool_area' => 'boolean',
         'guest_suite' => 'boolean',
@@ -55,13 +55,14 @@ class Property extends Model
         'security' => 'boolean',
     ];
 
-    public function views() {
+    public function views()
+    {
         return $this->hasMany(PropertyView::class);
     }
 
     // Get the unique view count
-    public function getUniqueViewsAttribute() {
+    public function getUniqueViewsAttribute()
+    {
         return $this->views()->count();
     }
-    
 }

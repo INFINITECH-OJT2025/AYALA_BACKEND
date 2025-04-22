@@ -12,7 +12,7 @@ class ApplicantAppointment extends Model
     protected $fillable = ['applicant_id', 'schedule_datetime', 'message'];
 
     protected $casts = [
-        'schedule_datetime' => 'datetime', // ✅ Cast to DateTime
+        'schedule_datetime' => 'datetime', 
     ];
 
     public function applicant()
@@ -20,4 +20,3 @@ class ApplicantAppointment extends Model
         return $this->belongsTo(JobApplication::class, 'applicant_id', 'id');
     }
 }
-

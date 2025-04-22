@@ -37,21 +37,20 @@ class TestimonialController extends Controller
             'experience' => $request->experience,
             'photo' => $photoPath,
             'media' => $mediaPaths,
-            'status' => 'unpublished', // default to unpublished
+            'status' => 'unpublished',
         ]);
 
         return response()->json(['message' => 'Testimonial submitted successfully.']);
     }
 
-    // Fetch all testimonials
     public function index()
     {
         $testimonials = Testimonial::all();
-    
+
         $testimonials = $testimonials->map(function ($testimonial) {
             $testimonial->photo_url = $testimonial->photo ? asset('storage/' . $testimonial->photo) : null;
             $testimonial->media_urls = array_map(fn($media) => asset('storage/' . $media), $testimonial->media ?? []);
-    
+
             Log::info('Returned Testimonial:', [
                 'id' => $testimonial->id,
                 'photo' => $testimonial->photo,
@@ -59,55 +58,45 @@ class TestimonialController extends Controller
                 'media' => $testimonial->media,
                 'media_urls' => $testimonial->media_urls,
             ]);
-    
+
             return $testimonial;
         });
-    
+
         return response()->json($testimonials);
     }
 
-    // Update the status of a testimonial
     public function updateStatus($id, Request $request)
     {
         Log::info("Updating testimonial status for ID: $id");
-    
+
         $testimonial = Testimonial::findOrFail($id);
-    
-        // Validate the status input (published or unpublished)
+
         $request->validate([
-            'status' => 'required|in:unpublished,published', // status can only be 'unpublished' or 'published'
+            'status' => 'required|in:unpublished,published',
         ]);
-    
-        // Update the status
+
         $testimonial->status = $request->status;
         $testimonial->save();
-    
+
         return response()->json(['message' => 'Testimonial status updated successfully.']);
     }
 
-    // Delete a testimonial
-public function destroy($id)
-{
-    // Find the testimonial by ID
-    $testimonial = Testimonial::findOrFail($id);
+    public function destroy($id)
+    {
+        $testimonial = Testimonial::findOrFail($id);
 
-    // Delete the photo file if it exists
-    if ($testimonial->photo) {
-        Storage::disk('public')->delete($testimonial->photo);
-    }
-
-    // Delete the media files if they exist
-    if ($testimonial->media) {
-        foreach ($testimonial->media as $mediaFile) {
-            Storage::disk('public')->delete($mediaFile);
+        if ($testimonial->photo) {
+            Storage::disk('public')->delete($testimonial->photo);
         }
+
+        if ($testimonial->media) {
+            foreach ($testimonial->media as $mediaFile) {
+                Storage::disk('public')->delete($mediaFile);
+            }
+        }
+
+        $testimonial->delete();
+
+        return response()->json(['message' => 'Testimonial deleted successfully.']);
     }
-
-    // Delete the testimonial from the database
-    $testimonial->delete();
-
-    return response()->json(['message' => 'Testimonial deleted successfully.']);
-}
-
-
 }

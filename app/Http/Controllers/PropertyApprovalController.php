@@ -5,29 +5,32 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Property;
 
-class PropertyApprovalController extends Controller {
-    // List pending properties
-public function index()
+class PropertyApprovalController extends Controller
 {
-    $pendingProperties = Property::where('status', 'pending')->get();
-    
-    return response()->json([
-        'count' => $pendingProperties->count(),
-        'data' => $pendingProperties
-    ], 200);
-}
 
-    
-    // Approve property
-    public function approve($id) {
+    public function index()
+    {
+        $pendingProperties = Property::where('status', 'pending')->get();
+
+        return response()->json([
+            'count' => $pendingProperties->count(),
+            'data' => $pendingProperties
+        ], 200);
+    }
+
+
+
+    public function approve($id)
+    {
         $property = Property::findOrFail($id);
         $property->update(['status' => 'approved']);
 
         return response()->json(['message' => 'Property approved successfully', 'property' => $property]);
     }
 
-    // Reject property
-    public function reject($id) {
+
+    public function reject($id)
+    {
         $property = Property::findOrFail($id);
         $property->update(['status' => 'rejected']);
 

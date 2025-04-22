@@ -21,8 +21,7 @@ class PropertyApprovedMail extends Mailable
     public function build()
     {
         return $this->subject("Your Property Listing is Approved!")
-                    ->view("emails.property_approved")
-                    ->with(["property" => $this->property]);
+            ->view("emails.property_approved")
+            ->with(["property" => $this->property]);
     }
 }
-

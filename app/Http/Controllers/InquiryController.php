@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Mail;
 
 class InquiryController extends Controller
 {
-    // ✅ Store Inquiry
-    public function store(Request $request) {
+
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'inquiry_type' => 'required|string',
             'last_name' => 'required|string|max:255',
@@ -25,72 +26,76 @@ class InquiryController extends Controller
         Notification::create([
             'message' => "New general inquiry from {$inquiry->first_name} {$inquiry->last_name}.",
             'type' => 'info',
-            'is_read' => 'unread', // ✅ Correct ENUM value
+            'is_read' => 'unread',
         ]);
-        
+
         return response()->json(['message' => 'Inquiry submitted successfully!', 'inquiry' => $inquiry], 201);
     }
 
-    // ✅ Fetch All Inquiries
-    public function index() {
+
+    public function index()
+    {
         return response()->json(Inquiry::latest()->get());
     }
 
-    public function reply(Request $request, $id) {
+    public function reply(Request $request, $id)
+    {
         $inquiry = Inquiry::findOrFail($id);
         $messageBody = $request->input('message');
-    
-        // ✅ Send Email
+
+
         Mail::raw($messageBody, function ($mail) use ($inquiry) {
             $mail->to($inquiry->email)
-                 ->subject("Reply to Your Inquiry");
+                ->subject("Reply to Your Inquiry");
         });
 
         $inquiry->status = 'replied';
         $inquiry->save();
-    
+
         return response()->json(['message' => 'Reply sent successfully']);
     }
 
-    public function archive($id) {
+    public function archive($id)
+    {
         $inquiry = Inquiry::find($id);
         if (!$inquiry) {
             return response()->json(['message' => 'Inquiry not found'], 404);
         }
-    
+
         $inquiry->status = 'archived';
         $inquiry->save();
-    
+
         return response()->json(['message' => 'Inquiry archived successfully']);
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $inquiry = Inquiry::findOrFail($id);
         $inquiry->delete();
-    
+
         return response()->json(['message' => 'Inquiry deleted successfully']);
     }
 
-    public function unarchive($id) {
+    public function unarchive($id)
+    {
         $inquiry = Inquiry::find($id);
         if (!$inquiry) {
             return response()->json(['message' => 'Inquiry not found'], 404);
         }
-    
+
         $inquiry->status = 'active';
         $inquiry->save();
-    
+
         return response()->json(['message' => 'Inquiry unarchived successfully']);
     }
 
-    public function getInquiryStats() {
+    public function getInquiryStats()
+    {
         $inquiryStats = Inquiry::selectRaw('inquiry_type, COUNT(*) as count')
             ->groupBy('inquiry_type')
             ->orderByDesc('count')
             ->get();
-    
+
         return response()->json($inquiryStats);
     }
-    
-    
 }

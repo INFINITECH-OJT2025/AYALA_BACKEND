@@ -19,7 +19,7 @@ class ContactDetail extends Model
     ];
 
     protected $casts = [
-        'phones' => 'array', // Cast JSON to array
-        'social_media' => 'array', // Cast JSON to array
+        'phones' => 'array',
+        'social_media' => 'array',
     ];
 }

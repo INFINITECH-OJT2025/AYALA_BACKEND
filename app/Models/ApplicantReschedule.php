@@ -19,7 +19,7 @@ class ApplicantReschedule extends Model
     ];
 
     protected $casts = [
-        'new_schedule' => 'datetime', // ✅ Ensure new_schedule is treated as a datetime
+        'new_schedule' => 'datetime', 
     ];
 
     public function applicant()

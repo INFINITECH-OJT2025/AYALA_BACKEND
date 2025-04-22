@@ -12,11 +12,13 @@ use App\Mail\JobPostedMail;
 
 class JobController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return response()->json(Job::all());
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'title' => 'required|string|',
             'location' => 'required|string|',
@@ -30,48 +32,49 @@ class JobController extends Controller
             'qualification' => 'nullable|string|',
             'seniority_level' => 'nullable|string|',
             'job_function' => 'nullable|string|',
-        ]);        
-    
-        // ✅ Check if a job with the same title & location already exists
+        ]);
+
+
         $existingJob = Job::where('title', $request->title)
-                          ->where('location', $request->location)
-                          ->first();
-    
+            ->where('location', $request->location)
+            ->first();
+
         if ($existingJob) {
             return response()->json([
                 'success' => false,
                 'message' => 'A job with this title and location already exists.'
             ], 409);
         }
-    
-        // ✅ Handle image upload
+
+
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('storage/job_images'), $imageName);
             $validated['image_url'] = asset("storage/job_images/$imageName");
         }
-    
-        // ✅ Store job
+
+
         $job = Job::create($validated);
-    
-        // ✅ Send email to subscribers
+
+
         $this->sendJobPostedEmail($job);
 
         $existingJob = Job::where('title', $request->title)
-        ->where('location', $request->location)
-        ->first();
-    
+            ->where('location', $request->location)
+            ->first();
+
         return response()->json([
             'success' => true,
             'message' => 'Job posted successfully!',
             'job' => $job
         ], 201);
     }
-    
 
-    private function sendJobPostedEmail($job) {
-        $subscribers = Subscriber::pluck('email'); // Fetch all subscriber emails
+
+    private function sendJobPostedEmail($job)
+    {
+        $subscribers = Subscriber::pluck('email');
         foreach ($subscribers as $email) {
             Mail::to($email)->send(new JobPostedMail($job));
         }
@@ -80,29 +83,31 @@ class JobController extends Controller
     public function featuredJobs(Request $request)
     {
         $limit = $request->query('limit', 3);
-        $today = now()->startOfDay(); // ✅ Get today's date without time
-    
-        // ✅ Fetch latest jobs where deadline is either NULL or in the future
+        $today = now()->startOfDay();
+
+
         $jobs = Job::where(function ($query) use ($today) {
-                $query->whereNull('deadline')
-                      ->orWhere('deadline', '>=', $today);
-            })
+            $query->whereNull('deadline')
+                ->orWhere('deadline', '>=', $today);
+        })
             ->latest()
             ->take($limit)
             ->get();
-    
+
         return response()->json($jobs);
     }
-    
-    public function fetchJobs() {
-        return response()->json(Job::latest()->get()); // ✅ Fetch all jobs without limit
+
+    public function fetchJobs()
+    {
+        return response()->json(Job::latest()->get());
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         Log::info('Update Request Data:', $request->all());
-    
+
         $job = Job::findOrFail($id);
-    
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|',
             'location' => 'sometimes|required|string|',
@@ -117,12 +122,12 @@ class JobController extends Controller
             'seniority_level' => 'sometimes|string|',
             'job_function' => 'sometimes|string|',
         ]);
-        
+
         if (($request->title !== $job->title || $request->location !== $job->location) && $request->has(['title'])) {
             $existingJob = Job::where('title', $request->title)
-                              ->where('id', '!=', $id) 
-                              ->first();
-    
+                ->where('id', '!=', $id)
+                ->first();
+
             if ($existingJob) {
                 return response()->json([
                     'success' => false,
@@ -130,7 +135,7 @@ class JobController extends Controller
                 ], 409);
             }
         }
-    
+
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -138,10 +143,10 @@ class JobController extends Controller
             $image->move(public_path('storage/job_images'), $imageName);
             $validated['image_url'] = asset("storage/job_images/$imageName");
         }
-    
+
         $job->fill($validated);
-    
-        if ($job->isDirty()) { 
+
+        if ($job->isDirty()) {
             $job->save();
             return response()->json([
                 'success' => true,
@@ -149,16 +154,17 @@ class JobController extends Controller
                 'job' => $job
             ]);
         }
-    
+
         return response()->json([
             'success' => false,
             'message' => 'No changes were made to the job.',
         ], 400);
     }
-    
-    
 
-    public function destroy($id) {
+
+
+    public function destroy($id)
+    {
         $job = Job::findOrFail($id);
 
         if ($job->image_url) {

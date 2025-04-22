@@ -10,15 +10,19 @@ class AboutUs extends Model
     use HasFactory;
 
     protected $table = 'about_us';
-    
+
     protected $fillable = [
-        'hero_title', 'hero_subtitle', 'hero_image',
-        'mission_title', 'mission_description',
-        'vision_title', 'vision_description',
-        'history', // ✅ Stores multiple history entries in JSON format
+        'hero_title',
+        'hero_subtitle',
+        'hero_image',
+        'mission_title',
+        'mission_description',
+        'vision_title',
+        'vision_description',
+        'history', 
     ];
 
     protected $casts = [
-        'history' => 'array', // ✅ Ensures history is always treated as an array
+        'history' => 'array', 
     ];
 }

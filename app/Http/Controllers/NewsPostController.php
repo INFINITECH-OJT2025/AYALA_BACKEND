@@ -40,7 +40,6 @@ class NewsPostController extends Controller
 
         $data = $request->all();
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
             $request->file('image')->move(public_path('storage/news_images'), $filename);
@@ -49,7 +48,6 @@ class NewsPostController extends Controller
 
         $news = NewsPost::create($data);
 
-        // ✅ Send email if it's featured & published
         if ($news->is_featured && $news->status === "published") {
             $this->sendFeaturedNewsEmail($news);
         }
@@ -88,7 +86,6 @@ class NewsPostController extends Controller
         $wasPreviouslyPublished = $news->status === "published";
         $news->update($data);
 
-        // ✅ If updated news is now featured & published, send email
         if ($news->is_featured && $news->status === "published" && !$wasPreviouslyPublished) {
             $this->sendFeaturedNewsEmail($news);
         }
@@ -106,7 +103,6 @@ class NewsPostController extends Controller
         return response()->json(['message' => 'News post deleted successfully']);
     }
 
-    // ✅ Send email to subscribers when featured news is published
     private function sendFeaturedNewsEmail($news) {
         $subscribers = Subscriber::pluck('email');
         foreach ($subscribers as $email) {

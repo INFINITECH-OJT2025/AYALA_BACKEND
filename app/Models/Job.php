@@ -23,5 +23,4 @@ class Job extends Model
         'seniority_level',
         'job_function',
     ];
-    
 }

@@ -11,41 +11,41 @@ use Illuminate\Auth\Notifications\ResetPassword;
 
 class AuthController extends Controller
 {
-    // ✅ Admin Login
+
     public function login(Request $request)
     {
         $request->validate([
             "email" => "required|email",
             "password" => "required",
         ]);
-    
-        // ✅ Fetch the user manually
+
+
         $user = User::where('email', $request->email)->first();
-    
-        // ✅ Check if user exists and verify password using Hash::check()
+
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(["error" => "Invalid credentials"], 401);
         }
-    
-        // ✅ Ensure only the predefined admin can log in
+
+
         if ($user->email !== "anyayahanjosedexter@gmail.com") {
             return response()->json(["error" => "Access denied."], 403);
         }
-    
+
         Auth::login($user);
-    
+
         return response()->json(["user" => $user], 200);
     }
-    
-    // ✅ Get Authenticated User
+
+
     public function user(Request $request)
     {
-        $user = Auth::user(); // ✅ Ensure this is not null
-    
+        $user = Auth::user();
+
         if (!$user) {
             return response()->json(["error" => "Unauthorized"], 401);
         }
-    
+
         return response()->json($user);
     }
 
@@ -57,9 +57,10 @@ class AuthController extends Controller
         return response()->json(["message" => "Logged out"], 200);
     }
 
-    public function forgotPassword(Request $request) {
+    public function forgotPassword(Request $request)
+    {
         $request->validate([
-            "email" => "required|email|exists:users,email", 
+            "email" => "required|email|exists:users,email",
         ]);
         $status = Password::sendResetLink($request->only("email"));
         return $status === Password::RESET_LINK_SENT
@@ -67,13 +68,14 @@ class AuthController extends Controller
             : response()->json(["error" => "Failed to send reset link."], 400);
     }
 
-    public function resetPassword(Request $request) {
+    public function resetPassword(Request $request)
+    {
         $request->validate([
             "email" => "required|email",
             "token" => "required",
             "password" => "required|min:8|confirmed",
         ]);
-    
+
         $status = Password::reset(
             $request->only("email", "token", "password", "password_confirmation"),
             function ($user, $password) {
@@ -82,7 +84,7 @@ class AuthController extends Controller
                 ])->save();
             }
         );
-    
+
         return $status === Password::PASSWORD_RESET
             ? response()->json(["message" => "Password reset successful"], 200)
             : response()->json(["error" => "Invalid token or email"], 400);

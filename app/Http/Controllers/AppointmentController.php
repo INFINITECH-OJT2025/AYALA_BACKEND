@@ -49,10 +49,9 @@ class AppointmentController extends Controller
                 ->subject("Appointment Response");
         });
 
-        // Update status
         $appointment->status = 'replied';
         $appointment->save();
-    
+
 
         return response()->json(['message' => 'Reply sent successfully!']);
     }
@@ -84,14 +83,13 @@ class AppointmentController extends Controller
     }
 
     public function show($id)
-{
-    $appointment = Appointment::with('property')->find($id);
+    {
+        $appointment = Appointment::with('property')->find($id);
 
-    if (!$appointment) {
-        return response()->json(['error' => 'Appointment not found'], 404);
+        if (!$appointment) {
+            return response()->json(['error' => 'Appointment not found'], 404);
+        }
+
+        return response()->json($appointment);
     }
-
-    return response()->json($appointment);
-}
-
 }

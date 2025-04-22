@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage'], // ✅ Ensure Sanctum CSRF is included
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['*'], // ✅ Allow all origins (only in development)
+    'allowed_origins' => ['*'],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true, // ✅ Important for session authentication
+    'supports_credentials' => true,
 ];

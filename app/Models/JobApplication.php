@@ -10,17 +10,17 @@ class JobApplication extends Model
     use HasFactory;
 
     protected $fillable = [
-        'job_title', // ✅ Ensure job title is allowed in mass assignment
+        'job_title',
         'first_name',
         'last_name',
         'email',
         'phone',
         'address',
         'resume_path',
-        'status', // ✅ Ensure status field is included
-        'schedule_date', // ✅ Add this field
+        'status',
+        'schedule_date',
     ];
-    
+
     public function reschedule()
     {
         return $this->hasOne(ApplicantReschedule::class, 'applicant_id', 'id');

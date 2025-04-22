@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\SessionTimeoutMiddleware::class,
         ],
     ];
-    
+
 
     /**
      * The application's individual route middleware.
