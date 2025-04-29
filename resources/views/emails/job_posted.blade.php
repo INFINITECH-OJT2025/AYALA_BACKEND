@@ -103,9 +103,10 @@
         <p class="footer">Stay updated with the latest career opportunities at AyalaLand.</p>
 
         <p class="unsubscribe">
-            If you no longer wish to receive our emails, you can 
-            <a href="https://yourwebsite.com/unsubscribe">unsubscribe here</a>.
+        If you no longer wish to receive our emails, you can 
+        <a href="http://localhost:3001/unsubscribe">unsubscribe here</a>.
         </p>
+
     </div>
 </body>
 </html>

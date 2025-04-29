@@ -322,4 +322,41 @@ class PropertyController extends Controller
             ] : null,
         ]);
     }
+
+    public function suggestProperties(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'budget' => 'required|numeric|min:0',
+        'unit_type' => 'nullable|string' // e.g., 'Studio Type', '1BR', etc.
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $budget = $request->input('budget');
+    $unitType = $request->input('unit_type');
+
+    $query = Property::query()
+        ->where('status', 'approved')
+        ->where('price', '<=', $budget);
+
+    if (!empty($unitType)) {
+        $query->where('unit_type', 'LIKE', "%$unitType%");
+    }
+
+    $suggestedProperties = $query->orderBy('price', 'asc')
+        ->limit(5)
+        ->get();
+
+    if ($suggestedProperties->isEmpty()) {
+        return response()->json([
+            'message' => 'No matching properties found. Try adjusting your filters.'
+        ], 404);
+    }
+
+    return response()->json($suggestedProperties);
+}
+
+
 }

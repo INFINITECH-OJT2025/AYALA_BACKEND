@@ -135,6 +135,7 @@ Route::middleware(['auth:sanctum', 'session.timeout'])->group(function () {
     Route::post("/logout", [AuthController::class, "logout"]);
 });
 
+Route::post('/suggest-properties', [PropertyController::class, 'suggestProperties']);
 Route::apiResource('properties', PropertyController::class);
 Route::patch('/properties/{id}/update-status', [PropertyController::class, 'updatePropertyStatus']);
 Route::get('/properties/{id}', [PropertyController::class, 'show']);

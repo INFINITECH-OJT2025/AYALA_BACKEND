@@ -91,9 +91,10 @@
         <p class="footer">Thank you for staying informed with our latest updates.</p>
 
         <p class="unsubscribe">
-            If you no longer wish to receive our emails, you can 
-            <a href="https://yourwebsite.com/unsubscribe">unsubscribe here</a>.
-        </p>
+  If you no longer wish to receive our emails, you can 
+  <a href="http://localhost:3000/unsubscribe">unsubscribe here</a>.
+</p>
+
     </div>
 </body>
 </html>
