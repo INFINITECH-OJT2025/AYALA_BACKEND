@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 
 class AuthController extends Controller
 {
-
+    // LOGIN
     public function login(Request $request)
     {
         $request->validate([
@@ -19,26 +18,22 @@ class AuthController extends Controller
             "password" => "required",
         ]);
 
-
         $user = User::where('email', $request->email)->first();
-
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(["error" => "Invalid credentials"], 401);
         }
 
-
-        if ($user->email !== "anyayahanjosedexter@gmail.com") {
-            return response()->json(["error" => "Access denied."], 403);
-        }
-
         Auth::login($user);
 
-        return response()->json(["user" => $user], 200);
+        return response()->json([
+            "message" => "Login successful",
+            "user" => $user
+        ], 200);
     }
 
-
-    public function user(Request $request)
+    // GET CURRENT USER
+    public function user()
     {
         $user = Auth::user();
 
@@ -49,25 +44,33 @@ class AuthController extends Controller
         return response()->json($user);
     }
 
-    // ✅ Logout
+    // LOGOUT
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return response()->json(["message" => "Logged out"], 200);
     }
 
+    // FORGOT PASSWORD
     public function forgotPassword(Request $request)
     {
         $request->validate([
             "email" => "required|email|exists:users,email",
         ]);
-        $status = Password::sendResetLink($request->only("email"));
+
+        $status = Password::sendResetLink(
+            $request->only("email")
+        );
+
         return $status === Password::RESET_LINK_SENT
-            ? response()->json(["message" => "Password reset link sent to your email."], 200)
-            : response()->json(["error" => "Failed to send reset link."], 400);
+            ? response()->json(["message" => "Reset link sent"], 200)
+            : response()->json(["error" => "Failed"], 400);
     }
 
+    // RESET PASSWORD
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -79,14 +82,13 @@ class AuthController extends Controller
         $status = Password::reset(
             $request->only("email", "token", "password", "password_confirmation"),
             function ($user, $password) {
-                $user->forceFill([
-                    "password" => Hash::make($password),
-                ])->save();
+                $user->password = Hash::make($password);
+                $user->save();
             }
         );
 
         return $status === Password::PASSWORD_RESET
-            ? response()->json(["message" => "Password reset successful"], 200)
-            : response()->json(["error" => "Invalid token or email"], 400);
+            ? response()->json(["message" => "Password reset success"], 200)
+            : response()->json(["error" => "Invalid token"], 400);
     }
 }

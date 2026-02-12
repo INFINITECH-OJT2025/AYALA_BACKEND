@@ -10,17 +10,22 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-    {
+{
+    if (Schema::hasColumn('about_us', 'history')) {
         Schema::table('about_us', function (Blueprint $table) {
-            $table->json('history')->nullable()->change(); // ✅ Allow multiple history items
+            $table->json('history')->nullable()->change();
         });
     }
-    
-    public function down()
-    {
+}
+
+public function down()
+{
+    if (Schema::hasColumn('about_us', 'history')) {
         Schema::table('about_us', function (Blueprint $table) {
             $table->text('history')->nullable()->change();
         });
     }
+}
+
     
 };
